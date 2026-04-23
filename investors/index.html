@@ -160,12 +160,62 @@
   footer a{color:#fff;text-decoration:none;margin:0 12px}
 
   @media (max-width:900px){
-    .two,.stat-grid,.revenue-grid,.team-grid,.ask-grid{grid-template-columns:1fr;gap:14px}
-    .comp-table{font-size:12px;overflow-x:auto;display:block}
-    section{padding:70px 0}
-    .hook{padding:90px 0 80px}
-    .why{flex-direction:column;gap:8px}
-    .why .bignum{min-width:auto}
+    nav{padding:10px 0}
+    nav .wrap{gap:12px;padding:0 16px}
+    nav .tag{display:none}
+    nav a.link{display:none}
+    nav .logo{font-size:20px}
+    nav a.cta{padding:8px 14px;font-size:13px}
+
+    .wrap{padding:0 20px}
+    section{padding:64px 0}
+    .hook{padding:80px 0 64px}
+    h2{font-size:clamp(30px,7vw,44px);margin-bottom:18px}
+    .hook h1{font-size:clamp(44px,11vw,72px)}
+    .hook .lede{font-size:17px;margin-top:20px}
+    .hook .meta{margin-top:22px}
+    .pill{font-size:12px;padding:6px 12px}
+    .slide-num{font-size:11px;margin-bottom:10px}
+    .dek{font-size:16px}
+
+    .two{grid-template-columns:1fr;gap:28px;margin-top:28px}
+    .two h3{font-size:20px}
+
+    .stat-grid,.revenue-grid,.team-grid,.ask-grid{grid-template-columns:1fr;gap:12px;margin-top:28px}
+    .stat{padding:24px 20px}
+    .stat b{font-size:38px}
+    .rev{padding:22px}
+    .rev h3{font-size:20px}
+    .person{padding:24px 20px}
+    .person .head{width:100px;height:100px;font-size:44px;margin-bottom:14px}
+    .ask-box{padding:22px}
+    .ask-box b{font-size:28px}
+
+    .why-list{margin-top:28px;gap:12px}
+    .why{flex-direction:row;gap:14px;padding:22px;align-items:center}
+    .why .bignum{font-size:32px;min-width:44px}
+    .why h4{font-size:18px;margin-bottom:2px}
+    .why p{font-size:14px}
+
+    .comp-table{font-size:12px}
+    .comp-table th,.comp-table td{padding:12px 14px}
+    section:has(.comp-table) > .wrap{padding:0 12px}
+
+    .contact{padding:90px 0}
+    .contact h2{font-size:clamp(36px,9vw,56px)}
+    .btn-row{flex-direction:column;align-items:stretch;gap:10px}
+    .btn{justify-content:center;padding:14px 22px;font-size:15px}
+    .contact .deck-link{font-size:13px}
+
+    .placeholder{padding:20px;font-size:13px;margin-top:20px}
+  }
+  @media (max-width:480px){
+    .wrap{padding:0 16px}
+    .stat-grid,.revenue-grid,.team-grid,.ask-grid{margin-top:22px}
+    .hook h1{font-size:44px;line-height:1}
+    h2{font-size:30px}
+    .why{flex-direction:column;align-items:flex-start;gap:6px}
+    .why .bignum{font-size:28px}
   }
 </style>
 </head>
