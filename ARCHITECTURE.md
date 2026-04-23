@@ -25,14 +25,30 @@ Snapshot of where every piece of the stack lives. Update as things change.
 
 ```
 /Users/theo/Code/boop
-├── index.html          # landing page (single-file, inline CSS + JS form handler)
+├── index.html              # CONSUMER landing (boopgo.app/)
+├── investors/
+│   └── index.html          # INVESTOR brief (boopgo.app/investors)
 ├── api/
-│   └── waitlist.js     # Vercel serverless — POST email+audience, inserts Supabase, sends via Resend
-├── package.json        # @supabase/supabase-js, resend
-├── ARCHITECTURE.md     # this file
-├── .env.local          # local secrets (gitignored)
+│   └── waitlist.js         # POST email+audience → Supabase + Resend
+├── package.json            # @supabase/supabase-js, resend
+├── ARCHITECTURE.md         # this file
+├── .env.local              # local secrets (gitignored)
 └── .gitignore
 ```
+
+## Page strategy
+
+- **`/`** — consumer-facing. Waitlist-focused. Investor pill removed from form. Footer has a subtle "For investors →" link.
+- **`/investors`** — scroll-as-deck for VCs. 11 sections: Hook, Problem, Solution, Why now, Traction, Business model, Market, Competition, Team, Ask, Contact. No email waitlist — CTAs are Calendly + email + deck download.
+- `/investors` has `<meta name="robots" content="noindex">` so it won't show up in search — investors get the link directly.
+
+## TODO to fill in on /investors
+
+- `[CALENDLY_URL]` in the Contact section → real Calendly link
+- `[DECK_URL]` → Google Drive / Pitch / DocSend URL
+- `[TBD]` traction numbers → real numbers as they accrue
+- `[X]` placeholders in the Ask section → raise amount, runway, team hires
+- Team section → real headshots, bios, LinkedIn links (replace emoji placeholders)
 
 ## Deploy flow
 
