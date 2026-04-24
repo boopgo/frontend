@@ -1,8 +1,8 @@
 "use client";
 
-import { Canvas, useFrame } from "@react-three/fiber";
-import { ContactShadows, Environment, PerspectiveCamera } from "@react-three/drei";
-import { Suspense, useMemo, useRef } from "react";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { ContactShadows } from "@react-three/drei";
+import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import type { Palette, Species } from "./PetCreature";
 
@@ -20,9 +20,11 @@ export type Pet3D = {
 };
 
 // Map 0..1 yard coords into world coords.
-// Yard is ~14 wide × 10 deep, centered on origin at ground (y=0).
-const YARD_W = 14;
-const YARD_D = 10;
+// Yard world size is tuned so that walkable area (pets constrained to
+// 0.1..0.9 on each axis) fits exactly inside the camera's visible frame
+// across typical mobile aspect ratios.
+const YARD_W = 6;
+const YARD_D = 4.2;
 const toWorld = (p: Pet3D): [number, number, number] => [
   (p.x - 0.5) * YARD_W,
   0,
@@ -232,32 +234,115 @@ function Flower({ position, color }: { position: [number, number, number]; color
 function Ground() {
   return (
     <>
-      {/* grass ground */}
+      {/* warm green earth under the grass */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow position={[0, 0, 0]}>
         <planeGeometry args={[40, 40]} />
-        <meshStandardMaterial color="#9fd88a" roughness={1} />
+        <meshStandardMaterial color="#5a9a54" roughness={1} />
       </mesh>
-      {/* subtle darker patch under yard */}
+      {/* lighter patch in the play zone so pets pop */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow position={[0, 0.001, 0]}>
-        <circleGeometry args={[8, 48]} />
-        <meshStandardMaterial color="#b7dca0" roughness={1} />
-      </mesh>
-      {/* dirt path */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow position={[0, 0.002, 2.4]}>
-        <planeGeometry args={[3.5, 1.4]} />
-        <meshStandardMaterial color="#d9b486" roughness={1} />
+        <circleGeometry args={[6, 48]} />
+        <meshStandardMaterial color="#7ab370" roughness={1} />
       </mesh>
     </>
+  );
+}
+
+function GrassField() {
+  const meshRef = useRef<THREE.InstancedMesh>(null);
+  const COUNT = 2800;
+
+  useEffect(() => {
+    const mesh = meshRef.current;
+    if (!mesh) return;
+    const tmp = new THREE.Object3D();
+    const color = new THREE.Color();
+    const greens = ["#4f9a45", "#6cba5e", "#8fd07d", "#c2dc6f"]; // dark → light → chartreuse
+
+    for (let i = 0; i < COUNT; i++) {
+      // dense toward center, thinning out
+      const angle = Math.random() * Math.PI * 2;
+      const r = Math.sqrt(Math.random()) * 9;
+      const x = Math.cos(angle) * r;
+      const z = Math.sin(angle) * r;
+
+      const scaleY = 0.7 + Math.random() * 0.9;
+      const scaleXZ = 0.8 + Math.random() * 0.5;
+
+      tmp.position.set(x, 0, z);
+      tmp.rotation.set(
+        (Math.random() - 0.5) * 0.2,
+        Math.random() * Math.PI * 2,
+        (Math.random() - 0.5) * 0.2
+      );
+      tmp.scale.set(scaleXZ, scaleY, scaleXZ);
+      tmp.updateMatrix();
+      mesh.setMatrixAt(i, tmp.matrix);
+
+      color.set(greens[Math.floor(Math.random() * greens.length)]);
+      // tiny brightness jitter
+      const j = 0.9 + Math.random() * 0.2;
+      color.multiplyScalar(j);
+      mesh.setColorAt(i, color);
+    }
+    mesh.instanceMatrix.needsUpdate = true;
+    if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+  }, []);
+
+  return (
+    <instancedMesh
+      ref={meshRef}
+      args={[undefined, undefined, COUNT]}
+      castShadow
+      receiveShadow
+      position={[0, 0.02, 0]}
+    >
+      <coneGeometry args={[0.028, 0.42, 3]} />
+      <meshStandardMaterial roughness={0.95} />
+    </instancedMesh>
+  );
+}
+
+function Clovers() {
+  const meshRef = useRef<THREE.InstancedMesh>(null);
+  const COUNT = 120;
+
+  useEffect(() => {
+    const mesh = meshRef.current;
+    if (!mesh) return;
+    const tmp = new THREE.Object3D();
+    const color = new THREE.Color();
+    for (let i = 0; i < COUNT; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const r = Math.sqrt(Math.random()) * 7;
+      tmp.position.set(Math.cos(angle) * r, 0.01, Math.sin(angle) * r);
+      tmp.rotation.set(-Math.PI / 2, 0, Math.random() * Math.PI * 2);
+      const s = 0.12 + Math.random() * 0.08;
+      tmp.scale.set(s, s, s);
+      tmp.updateMatrix();
+      mesh.setMatrixAt(i, tmp.matrix);
+      color.setHSL(0.28 + Math.random() * 0.06, 0.55, 0.45 + Math.random() * 0.1);
+      mesh.setColorAt(i, color);
+    }
+    mesh.instanceMatrix.needsUpdate = true;
+    if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+  }, []);
+
+  return (
+    <instancedMesh ref={meshRef} args={[undefined, undefined, COUNT]} receiveShadow>
+      <circleGeometry args={[1, 5]} />
+      <meshStandardMaterial roughness={1} />
+    </instancedMesh>
   );
 }
 
 function Scenery() {
   const flowers = useMemo(() => {
     const arr: { pos: [number, number, number]; color: string }[] = [];
-    const colors = ["#FF9A8B", "#FFD56B", "#C3AED6", "#ffffff"];
-    for (let i = 0; i < 18; i++) {
+    const colors = ["#FF9A8B", "#FFD56B", "#C3AED6", "#ffffff", "#FFB6D9", "#FF7B63"];
+    for (let i = 0; i < 40; i++) {
       const angle = Math.random() * Math.PI * 2;
-      const r = 4 + Math.random() * 4;
+      const r = 2.5 + Math.random() * 6;
       arr.push({
         pos: [Math.cos(angle) * r, 0, Math.sin(angle) * r],
         color: colors[Math.floor(Math.random() * colors.length)],
@@ -292,6 +377,40 @@ function Scenery() {
   );
 }
 
+/**
+ * Positions the camera so that a fixed-size world rectangle
+ * (YARD_W × YARD_D) is always fully framed, regardless of the
+ * canvas aspect ratio. On wide canvases it uses a narrower fov;
+ * on tall/portrait canvases it widens the fov so the full yard
+ * width remains visible.
+ */
+function CameraRig() {
+  const { camera, size } = useThree();
+  useEffect(() => {
+    const camHeight = 4.8;
+    const camZ = 5.5;
+    const target: [number, number, number] = [0, 0.2, 0];
+
+    camera.position.set(0, camHeight, camZ);
+    camera.lookAt(...target);
+
+    if ("fov" in camera) {
+      const aspect = size.width / Math.max(1, size.height);
+      const dist = Math.hypot(camHeight, camZ);
+      // need to fit half-width = YARD_W / 2 horizontally
+      const halfW = YARD_W / 2 + 0.4; // tiny padding
+      // horizontal fov required: 2 * atan(halfW / dist)
+      const hFovRad = 2 * Math.atan(halfW / dist);
+      // convert to vertical fov via aspect
+      const vFovRad = 2 * Math.atan(Math.tan(hFovRad / 2) / aspect);
+      const vFovDeg = (vFovRad * 180) / Math.PI;
+      camera.fov = Math.max(28, Math.min(85, vFovDeg));
+      camera.updateProjectionMatrix();
+    }
+  }, [camera, size.width, size.height]);
+  return null;
+}
+
 export default function Yard3D({
   pets,
   onPetClick,
@@ -300,12 +419,10 @@ export default function Yard3D({
   onPetClick?: (id: string) => void;
 }) {
   return (
-    <Canvas shadows dpr={[1, 2]} gl={{ antialias: true }}>
-      {/* warm sky-to-peach background */}
-      <color attach="background" args={["#ffd9bf"]} />
-      <fog attach="fog" args={["#ffd9bf", 14, 28]} />
-
-      <PerspectiveCamera makeDefault position={[0, 3.2, 7.5]} fov={42} />
+    <Canvas shadows dpr={[1, 2]} gl={{ antialias: true }} camera={{ fov: 45, near: 0.1, far: 60 }}>
+      <color attach="background" args={["#b9e0ff"]} />
+      <fog attach="fog" args={["#cfe9f7", 14, 26]} />
+      <CameraRig />
 
       <ambientLight intensity={0.55} />
       <directionalLight
@@ -321,17 +438,16 @@ export default function Yard3D({
       />
       <hemisphereLight args={["#ffe9b8", "#9fd88a", 0.4]} />
 
-      <Suspense fallback={null}>
-        <Ground />
-        <Scenery />
-        {pets.map((p) => (
-          <group key={p.id} onClick={() => onPetClick?.(p.id)}>
-            <Creature pet={p} />
-          </group>
-        ))}
-        <ContactShadows position={[0, 0.01, 0]} opacity={0.35} scale={20} blur={2.4} far={4} />
-        <Environment preset="sunset" background={false} />
-      </Suspense>
+      <Ground />
+      <Clovers />
+      <GrassField />
+      <Scenery />
+      {pets.map((p) => (
+        <group key={p.id} onClick={() => onPetClick?.(p.id)}>
+          <Creature pet={p} />
+        </group>
+      ))}
+      <ContactShadows position={[0, 0.01, 0]} opacity={0.35} scale={20} blur={2.4} far={4} />
     </Canvas>
   );
 }

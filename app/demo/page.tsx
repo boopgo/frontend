@@ -161,9 +161,6 @@ export default function DemoPage() {
             palette={draftPalette}
             name={name}
             setName={setName}
-            onShufflePalette={() =>
-              setDraftPalette(PALETTES[(PALETTES.indexOf(draftPalette) + 1) % PALETTES.length])
-            }
             onNext={() => setStep("pronouns")}
           />
         )}
@@ -318,7 +315,7 @@ function SplashScreen() {
       <div className="logo-bloom">
         boop<span className="dot" />
       </div>
-      <div className="tag">meet your pet, reimagined</div>
+      <div className="tag">meet your pet, booped</div>
     </div>
   );
 }
@@ -326,21 +323,23 @@ function SplashScreen() {
 function WelcomeScreen({ onStart }: { onStart: () => void }) {
   return (
     <div className="screen welcome">
-      <div className="status-bar" />
-      <div className="hero-art">
-        <div className="blob" />
+      <div className="welcome-yard">
+        <Yard3D pets={[]} />
+        <div className="status-bar" />
       </div>
-      <h1>
-        Let's bring <em>your pet</em> home.
-      </h1>
-      <p className="lede">
-        Snap a photo and we'll sculpt a boop — your pet's digital twin — ready to live in your pocket.
-      </p>
-      <div className="actions">
-        <button className="btn-primary" onClick={onStart}>
-          Get started →
-        </button>
-        <button className="btn-ghost">I already have an account</button>
+      <div className="welcome-sheet">
+        <h1>
+          Let's <em>boop</em> your pet.
+        </h1>
+        <p className="lede">
+          Snap a photo and we'll sculpt a boop — your pet's digital twin — ready to live in your pocket.
+        </p>
+        <div className="actions">
+          <button className="btn-primary" onClick={onStart}>
+            Get started →
+          </button>
+          <button className="btn-ghost">I already have an account</button>
+        </div>
       </div>
     </div>
   );
@@ -393,7 +392,7 @@ function GeneratingScreen() {
     <div className="screen generating">
       <div className="status-bar" />
       <div className="orb" />
-      <h1>Sculpting your boop</h1>
+      <h1>Booping your boop</h1>
       <div className="sub">
         Mapping the magic<span className="dots" />
       </div>
@@ -406,63 +405,40 @@ function RevealScreen({
   palette,
   name,
   setName,
-  onShufflePalette,
   onNext,
 }: {
   species: Species;
   palette: Palette;
   name: string;
   setName: (s: string) => void;
-  onShufflePalette: () => void;
   onNext: () => void;
 }) {
+  const previewPet = {
+    id: "preview",
+    name: name || "boop",
+    species,
+    palette,
+    x: 0.5,
+    y: 0.5,
+    vx: 0,
+    vy: 0,
+    facing: -1 as const,
+    bob: 0,
+  };
   return (
     <div className="screen reveal">
       <div className="reveal-yard">
+        <Yard3D pets={[previewPet]} />
         <div className="status-bar" />
         <div className="progress">
           <div className="p on" /><div className="p on" /><div className="p on" />
-        </div>
-        <div className="sun" />
-        <div className="cloud c1" />
-        <div className="cloud c2" />
-        <div className="cloud c3" />
-        <div className="tree" style={{ left: 12, bottom: 10, fontSize: 34 }}>🌳</div>
-        <div className="tree" style={{ right: 18, bottom: 6, fontSize: 30 }}>🌲</div>
-        <div className="avatar-wrap">
-          <span className="sparkle">✨</span>
-          <span className="sparkle">✨</span>
-          <span className="sparkle">✨</span>
-          <span className="sparkle">✨</span>
-          <div className="avatar-shadow" />
-          <div className="avatar-bob">
-            <PetCreature species={species} palette={palette} size={180} />
-          </div>
         </div>
       </div>
       <div className="reveal-sheet">
         <h1>Say hello.</h1>
         <p className="lede" style={{ textAlign: "center", marginTop: 8 }}>
-          Tap a color to remix. Give them a name when you're ready.
+          Give them a name when you're ready.
         </p>
-      <div style={{ display: "flex", gap: 10, justifyContent: "center", margin: "16px 0 4px" }}>
-        {PALETTES.map((p, i) => (
-          <button
-            key={i}
-            onClick={() => onShufflePalette()}
-            aria-label="try another color"
-            style={{
-              width: 28,
-              height: 28,
-              borderRadius: "50%",
-              background: p.body,
-              border: p === palette ? "3px solid #2A1A2E" : "2px solid #fff",
-              cursor: "pointer",
-              padding: 0,
-            }}
-          />
-        ))}
-      </div>
       <input
         className="name-input"
         placeholder="what's their name?"
@@ -512,9 +488,22 @@ function WizardShell({
   nextLabel?: string;
   children: React.ReactNode;
 }) {
+  const previewPet = {
+    id: "wizard-preview",
+    name: petName,
+    species,
+    palette,
+    x: 0.5,
+    y: 0.5,
+    vx: 0,
+    vy: 0,
+    facing: -1 as const,
+    bob: 0,
+  };
   return (
     <div className="screen wizard">
       <div className="wiz-yard">
+        <Yard3D pets={[previewPet]} />
         <div className="status-bar" />
         <button className="close-x" onClick={onBack} aria-label="back" style={{ background: "rgba(255,255,255,.8)", color: "var(--ink)" }}>←</button>
         <div className="progress">
@@ -522,18 +511,7 @@ function WizardShell({
             <div key={i} className={`p ${i <= stepIndex ? "on" : ""}`} />
           ))}
         </div>
-        <div className="sun" />
-        <div className="cloud c1" />
-        <div className="cloud c2" />
-        <div className="tree" style={{ left: 12, bottom: 6, fontSize: 28 }}>🌳</div>
-        <div className="tree" style={{ right: 16, bottom: 4, fontSize: 24 }}>🌲</div>
-        <div className="wiz-avatar">
-          <div className="avatar-shadow" />
-          <div className="avatar-bob">
-            <PetCreature species={species} palette={palette} size={120} />
-          </div>
-          <div className="wiz-name-tag">{petName}</div>
-        </div>
+        <div className="wiz-name-tag-floating">{petName}</div>
       </div>
       <div className="wiz-sheet">
         <h1>{title}</h1>
@@ -564,9 +542,15 @@ function HomeScreen({
   toast: string | null;
 }) {
   const yardRef = useRef<HTMLDivElement>(null);
-  const [tick, setTick] = useState(0);
-  const petsRef = useRef<Pet[]>(pets);
-  petsRef.current = pets;
+  const [livePets, setLivePets] = useState<Pet[]>(pets);
+
+  // keep sim in sync when a new pet is added upstream
+  useEffect(() => {
+    setLivePets((prev) => {
+      const byId = new Map(prev.map((p) => [p.id, p]));
+      return pets.map((p) => byId.get(p.id) ?? p);
+    });
+  }, [pets]);
 
   // wandering animation
   useEffect(() => {
@@ -575,52 +559,84 @@ function HomeScreen({
     const step = (now: number) => {
       const dt = Math.min((now - last) / 1000, 0.05);
       last = now;
-      petsRef.current = petsRef.current.map((p) => {
-        let { x, y, vx, vy, bob, facing } = p;
-        x += vx * dt * 8;
-        y += vy * dt * 8;
-        bob += dt * 4;
-        // bounce off yard edges (3D ground plane: 0.1..0.9 on both axes)
-        if (x < 0.1) { x = 0.1; vx = Math.abs(vx); }
-        if (x > 0.9) { x = 0.9; vx = -Math.abs(vx); }
-        if (y < 0.15) { y = 0.15; vy = Math.abs(vy); }
-        if (y > 0.9)  { y = 0.9;  vy = -Math.abs(vy); }
-        // occasional direction change
-        if (Math.random() < 0.008) {
-          vx = (Math.random() - 0.5) * 0.025;
-          vy = (Math.random() - 0.5) * 0.012;
-        }
-        facing = vx >= 0 ? 1 : -1;
-        return { ...p, x, y, vx, vy, bob, facing };
-      });
-      setTick((t) => (t + 1) % 1000);
+      setLivePets((curr) =>
+        curr.map((p) => {
+          let { x, y, vx, vy, bob, facing } = p;
+          x += vx * dt * 8;
+          y += vy * dt * 8;
+          bob += dt * 4;
+          if (x < 0.1) { x = 0.1; vx = Math.abs(vx); }
+          if (x > 0.9) { x = 0.9; vx = -Math.abs(vx); }
+          if (y < 0.15) { y = 0.15; vy = Math.abs(vy); }
+          if (y > 0.9)  { y = 0.9;  vy = -Math.abs(vy); }
+          if (Math.random() < 0.008) {
+            vx = (Math.random() - 0.5) * 0.025;
+            vy = (Math.random() - 0.5) * 0.012;
+          }
+          facing = vx >= 0 ? 1 : -1;
+          return { ...p, x, y, vx, vy, bob, facing };
+        })
+      );
       frame = requestAnimationFrame(step);
     };
     frame = requestAnimationFrame(step);
     return () => cancelAnimationFrame(frame);
   }, []);
 
-  const livePets = petsRef.current;
-
   return (
     <div className="screen home">
       <div className="yard" ref={yardRef}>
         <Yard3D pets={livePets} />
 
-        {/* suppress unused var warning for tick (drives rerender) */}
-        <span style={{ display: "none" }}>{tick}</span>
-
-        <button className="fab" onClick={onAdd} aria-label="add a pet">+</button>
+        <HomeMenu onAdd={onAdd} />
 
         {toast && <div className="toast">{toast}</div>}
-
-        <div className="tabbar">
-          <button className="tab active"><span className="icon">🏠</span>Home</button>
-          <button className="tab"><span className="icon">🎾</span>Play</button>
-          <button className="tab"><span className="icon">💛</span>Care</button>
-          <button className="tab"><span className="icon">👤</span>You</button>
-        </div>
       </div>
+    </div>
+  );
+}
+
+function HomeMenu({ onAdd }: { onAdd: () => void }) {
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (!open) return;
+    const close = () => setOpen(false);
+    const t = setTimeout(() => window.addEventListener("click", close, { once: true }), 0);
+    return () => { clearTimeout(t); window.removeEventListener("click", close); };
+  }, [open]);
+
+  const items = [
+    { label: "Add pet", icon: "＋", onClick: onAdd },
+    { label: "Play",    icon: "🎾", onClick: () => {} },
+    { label: "Care",    icon: "💛", onClick: () => {} },
+    { label: "You",     icon: "👤", onClick: () => {} },
+  ];
+
+  return (
+    <div className={`home-menu ${open ? "open" : ""}`} onClick={(e) => e.stopPropagation()}>
+      {items.map((it, i) => (
+        <button
+          key={it.label}
+          className="home-menu-item"
+          style={{
+            ["--i" as never]: i + 1,
+            transitionDelay: open ? `${i * 30}ms` : `${(items.length - i) * 20}ms`,
+          }}
+          onClick={() => { setOpen(false); it.onClick(); }}
+          aria-label={it.label}
+        >
+          <span className="icon">{it.icon}</span>
+          <span className="label">{it.label}</span>
+        </button>
+      ))}
+      <button
+        className="home-menu-trigger"
+        onClick={() => setOpen((v) => !v)}
+        aria-label={open ? "close menu" : "open menu"}
+      >
+        {open ? "✕" : "⋮"}
+      </button>
     </div>
   );
 }
