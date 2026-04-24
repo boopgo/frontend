@@ -699,14 +699,9 @@
   flex: 1;
   position: relative;
   overflow: hidden;
-  background:
-    linear-gradient(180deg,
-      #b9e0ff 0%,
-      #ffd9bf 35%,
-      #ffebd6 55%,
-      #d8ecc7 56%,
-      #b7dca0 100%);
+  background: #ffd9bf;
 }
+.yard canvas { display: block; width: 100% !important; height: 100% !important; }
 .yard .sun, .reveal-yard .sun {
   position: absolute;
   top: 28px; right: 30px;

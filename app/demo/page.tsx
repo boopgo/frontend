@@ -1,8 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import PetCreature, { PALETTES, Palette, Species } from "./PetCreature";
 import "./demo.css";
+
+const Yard3D = dynamic(() => import("./Yard3D"), { ssr: false });
 
 type Step =
   | "splash"
@@ -577,11 +580,11 @@ function HomeScreen({
         x += vx * dt * 8;
         y += vy * dt * 8;
         bob += dt * 4;
-        // bounce off yard edges (keep pets inside 0.05..0.9 horizontally, 0.4..0.85 vertically)
-        if (x < 0.06) { x = 0.06; vx = Math.abs(vx); }
-        if (x > 0.9)  { x = 0.9;  vx = -Math.abs(vx); }
-        if (y < 0.42) { y = 0.42; vy = Math.abs(vy); }
-        if (y > 0.85) { y = 0.85; vy = -Math.abs(vy); }
+        // bounce off yard edges (3D ground plane: 0.1..0.9 on both axes)
+        if (x < 0.1) { x = 0.1; vx = Math.abs(vx); }
+        if (x > 0.9) { x = 0.9; vx = -Math.abs(vx); }
+        if (y < 0.15) { y = 0.15; vy = Math.abs(vy); }
+        if (y > 0.9)  { y = 0.9;  vy = -Math.abs(vy); }
         // occasional direction change
         if (Math.random() < 0.008) {
           vx = (Math.random() - 0.5) * 0.025;
@@ -599,48 +602,13 @@ function HomeScreen({
 
   const livePets = petsRef.current;
 
-  // sort by y so pets further back render behind
-  const sorted = [...livePets].sort((a, b) => a.y - b.y);
-
   return (
     <div className="screen home">
       <div className="yard" ref={yardRef}>
-        <div className="sun" />
-        <div className="cloud c1" />
-        <div className="cloud c2" />
-        <div className="cloud c3" />
-        <div className="tree" style={{ left: 16, fontSize: 40 }}>🌳</div>
-        <div className="tree" style={{ right: 24, bottom: "50%" }}>🌲</div>
-        <div className="tree" style={{ left: "42%", bottom: "48%", fontSize: 26, opacity: .9 }}>🌴</div>
+        <Yard3D pets={livePets} />
 
-        {sorted.map((p) => {
-          const bobOffset = Math.sin(p.bob) * 2;
-          return (
-            <div
-              key={p.id}
-              className="pet-token"
-              style={{
-                left: `${p.x * 100}%`,
-                top: `${p.y * 100}%`,
-                transform: `translate(-50%, -50%) translateY(${bobOffset}px)`,
-                zIndex: Math.floor(p.y * 100),
-              }}
-              onClick={(e) => {
-                e.currentTarget.classList.toggle("show-name");
-              }}
-            >
-              <div className="shadow" />
-              <div className="name-tag">{p.name}</div>
-              <PetCreature
-                species={p.species}
-                palette={p.palette}
-                size={90}
-                facing={p.facing}
-                walking
-              />
-            </div>
-          );
-        })}
+        {/* suppress unused var warning for tick (drives rerender) */}
+        <span style={{ display: "none" }}>{tick}</span>
 
         <button className="fab" onClick={onAdd} aria-label="add a pet">+</button>
 
