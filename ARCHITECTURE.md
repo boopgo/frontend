@@ -5,7 +5,7 @@ Snapshot of where every piece of the stack lives. Update as things change.
 ## Live URLs
 
 - **Production site:** https://boop-gamma.vercel.app
-- **Custom domain (pending DNS):** https://boopgo.app
+- **Custom domain (pending DNS):** https://boopai.app
 - **Vercel dashboard:** https://vercel.com/theopartys-projects/boop
 - **GitHub repo:** https://github.com/boopgo/frontend
 
@@ -15,7 +15,7 @@ Snapshot of where every piece of the stack lives. Update as things change.
 |---|---|---|---|
 | Code host | GitHub (`boopgo/frontend`, public) | ✅ live | `main` branch auto-deploys |
 | Hosting | Vercel (Hobby, account `theoparty`) | ✅ live | Connected to GitHub, auto-deploys on push |
-| Domain | Namecheap — `boopgo.app` | 🟡 DNS pending | A `@` → `76.76.21.21`; CNAME `www` → `cname.vercel-dns.com` |
+| Domain | Namecheap — `boopai.app` | 🟡 DNS pending | A `@` → `76.76.21.21`; CNAME `www` → `cname.vercel-dns.com` |
 | Frontend | Single `index.html` + inline CSS | ✅ live | Fraunces serif + Nunito rounded, Pixar-warm palette |
 | Waitlist storage | Supabase (not set up) | ❌ TODO | Will be primary DB going forward |
 | Transactional email | Resend (not set up) | ❌ TODO | Confirmation emails, launch blast |
@@ -25,9 +25,9 @@ Snapshot of where every piece of the stack lives. Update as things change.
 
 ```
 /Users/theo/Code/boop
-├── index.html              # CONSUMER landing (boopgo.app/)
+├── index.html              # CONSUMER landing (boopai.app/)
 ├── investors/
-│   └── index.html          # INVESTOR brief (boopgo.app/investors)
+│   └── index.html          # INVESTOR brief (boopai.app/investors)
 ├── api/
 │   └── waitlist.js         # POST email+audience → Supabase + Resend
 ├── package.json            # @supabase/supabase-js, resend

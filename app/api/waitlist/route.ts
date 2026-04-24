@@ -10,7 +10,7 @@ const supabase = createClient(
 
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
-const FROM_ADDRESS = "boop <hello@boopgo.app>";
+const FROM_ADDRESS = "boop <hello@boopai.app>";
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const ALLOWED_AUDIENCES = new Set(["pet-parent", "investor", "press", "brand"]);
 

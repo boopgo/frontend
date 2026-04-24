@@ -1,6 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import dynamic from "next/dynamic";
+import { PALETTES } from "./demo/PetCreature";
+
+const Yard3D = dynamic(() => import("./demo/Yard3D"), { ssr: false });
 
 type Audience = "pet-parent" | "press" | "brand";
 
@@ -154,83 +158,30 @@ export default function Home() {
             <span className="floater f4">🎾</span>
             <div className="phone">
               <div className="notch"></div>
-              <div className="screen go-screen">
-                {/* isometric map background */}
-                <svg className="go-map" viewBox="0 0 280 600" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-                  <defs>
-                    <pattern id="goGrid" width="42" height="24" patternUnits="userSpaceOnUse" patternTransform="skewY(-14)">
-                      <path d="M0 0 L42 0 M0 0 L0 24" stroke="#9FD4A8" strokeWidth="1" opacity=".55" />
-                    </pattern>
-                    <radialGradient id="goVignette" cx="50%" cy="55%" r="65%">
-                      <stop offset="60%" stopColor="#000" stopOpacity="0" />
-                      <stop offset="100%" stopColor="#000" stopOpacity=".25" />
-                    </radialGradient>
-                  </defs>
-                  <rect width="100%" height="100%" fill="#C7E8C8" />
-                  <rect width="100%" height="100%" fill="url(#goGrid)" />
-                  {/* path the user is walking */}
-                  <path d="M140 620 Q120 460 150 320 T 138 80" stroke="#EFE0B2" strokeWidth="64" fill="none" strokeLinecap="round" opacity=".85" />
-                  <path d="M140 620 Q120 460 150 320 T 138 80" stroke="#fff" strokeWidth="2.5" strokeDasharray="7 9" fill="none" opacity=".75" />
-                  {/* trees */}
-                  <g className="go-trees">
-                    <circle cx="44" cy="200" r="22" fill="#79B47B" />
-                    <circle cx="50" cy="190" r="8" fill="#9CC99E" />
-                    <circle cx="240" cy="140" r="18" fill="#79B47B" />
-                    <circle cx="36" cy="430" r="20" fill="#79B47B" />
-                    <circle cx="248" cy="380" r="24" fill="#79B47B" />
-                    <circle cx="252" cy="370" r="9" fill="#9CC99E" />
-                  </g>
-                  {/* pokestop-ish landmark */}
-                  <g>
-                    <circle cx="62" cy="320" r="16" fill="none" stroke="#FFB454" strokeWidth="2" opacity=".5" />
-                    <circle cx="62" cy="320" r="9" fill="#FFB454" />
-                    <circle cx="62" cy="320" r="4" fill="#fff" />
-                  </g>
-                  <rect width="100%" height="100%" fill="url(#goVignette)" />
-                </svg>
-
-                {/* top HUD — level + live aura gain */}
-                <div className="go-hud-top">
-                  <div className="go-level-card">
-                    <div className="go-level-row">
-                      <span className="go-level-tag">LV</span>
-                      <span className="go-level-num">75</span>
-                      <span className="go-level-tick"></span>
-                    </div>
-                    <div className="go-aura-bar">
-                      <div className="go-aura-fill"></div>
-                      <div className="go-aura-shine"></div>
-                    </div>
-                    <div className="go-aura-row">
-                      <span className="go-aura-label">AURA</span>
-                      <span className="go-aura-amt">
-                        <span className="go-aura-plus">+</span>865
-                      </span>
-                    </div>
-                  </div>
+              <div className="screen reveal-screen">
+                <div className="reveal-yard-mini">
+                  <Yard3D
+                    pets={[
+                      {
+                        id: "landing-preview",
+                        name: "Mochi",
+                        species: "dog",
+                        palette: PALETTES[0],
+                        x: 0.5,
+                        y: 0.5,
+                        vx: 0,
+                        vy: 0,
+                        facing: -1 as const,
+                        bob: 0,
+                      },
+                    ]}
+                  />
                 </div>
-
-                {/* speech bubble */}
-                <div className="go-bubble">walkies! 🐾</div>
-
-                {/* mochi on the map */}
-                <div className="go-mochi">
-                  <div className="go-shadow"></div>
-                  <div className="pet mini">
-                    <div className="ear-l"></div>
-                    <div className="ear-r"></div>
-                    <div className="nose"></div>
-                  </div>
-                </div>
-
-                {/* quest card */}
-                <div className="go-quest">
-                  <div className="go-quest-icon">🎯</div>
-                  <div className="go-quest-body">
-                    <b>Daily walk</b>
-                    <div className="go-quest-bar"><div className="go-quest-fill"></div></div>
-                    <span>1.2 / 2.0 km</span>
-                  </div>
+                <div className="reveal-sheet-mini">
+                  <h3>Say hello.</h3>
+                  <p>Give them a name when you&apos;re ready.</p>
+                  <div className="name-input-mock">Mochi</div>
+                  <a className="reveal-cta" href="/demo">Next →</a>
                 </div>
               </div>
             </div>
@@ -475,7 +426,7 @@ export default function Home() {
             <a href="/investors">For investors →</a>
             <a href="#">Privacy</a>
             <a href="#">Terms</a>
-            <a href="mailto:hello@boopgo.app">Contact</a>
+            <a href="mailto:hello@boopai.app">Contact</a>
           </div>
           <div style={{ width: "100%", textAlign: "center", opacity: 0.5, fontSize: 12 }}>
             © 2026 boop, inc. Made with 🐾 in San Francisco.

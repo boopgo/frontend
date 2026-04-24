@@ -415,8 +415,8 @@ export default function Investors() {
             <a className="btn" href="[CALENDLY_URL]">
               📅 Book 15 min
             </a>
-            <a className="btn ghost" href="mailto:investors@boopgo.app">
-              investors@boopgo.app
+            <a className="btn ghost" href="mailto:investors@boopai.app">
+              investors@boopai.app
             </a>
           </div>
           <a className="deck-link" href="[DECK_URL]">
@@ -433,7 +433,7 @@ export default function Investors() {
       <footer>
         <div className="wrap">
           <a href="/">← boop (consumer)</a>
-          <a href="mailto:investors@boopgo.app">investors@boopgo.app</a>
+          <a href="mailto:investors@boopai.app">investors@boopai.app</a>
           <span style={{ display: "block", marginTop: 12, opacity: 0.6 }}>© 2026 boop, inc.</span>
         </div>
       </footer>
