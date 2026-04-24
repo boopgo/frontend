@@ -437,7 +437,7 @@ function RevealScreen({
       <div className="reveal-sheet">
         <h1>Say hello.</h1>
         <p className="lede" style={{ textAlign: "center", marginTop: 8 }}>
-          Give them a name when you're ready.
+          What's their name?
         </p>
       <input
         className="name-input"

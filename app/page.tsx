@@ -179,7 +179,7 @@ export default function Home() {
                 </div>
                 <div className="reveal-sheet-mini">
                   <h3>Say hello.</h3>
-                  <p>Give them a name when you&apos;re ready.</p>
+                  <p>What&apos;s their name?</p>
                   <div className="name-input-mock">Mochi</div>
                   <a className="reveal-cta" href="/demo">Next →</a>
                 </div>

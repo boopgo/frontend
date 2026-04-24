@@ -121,10 +121,17 @@ a{color:inherit}
     padding:40px 20px 30px;
   }
   /* ---- Reveal-style screen (matches /demo) ---- */
-  .reveal-screen{padding:0;justify-content:flex-start;align-items:stretch;background:var(--cream)}
-  .reveal-yard-mini{position:relative;height:56%;overflow:hidden;background:#b9e0ff}
-  .reveal-yard-mini canvas{display:block;width:100% !important;height:100% !important}
-  .reveal-sheet-mini{
+  .phone .screen.reveal-screen{
+    padding:0;justify-content:flex-start;align-items:stretch;
+    background:var(--cream);
+  }
+  .phone .screen.reveal-screen .reveal-yard-mini{
+    position:relative;height:56%;overflow:hidden;background:#b9e0ff;
+  }
+  .phone .screen.reveal-screen .reveal-yard-mini canvas{
+    display:block;width:100% !important;height:100% !important;
+  }
+  .phone .screen.reveal-screen .reveal-sheet-mini{
     flex:1;padding:18px 20px 22px;display:flex;flex-direction:column;
     align-items:stretch;text-align:center;background:var(--cream);
   }
