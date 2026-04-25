@@ -25,11 +25,26 @@ export type Pet3D = {
 // across typical mobile aspect ratios.
 const YARD_W = 6;
 const YARD_D = 4.2;
-const toWorld = (p: Pet3D): [number, number, number] => [
-  (p.x - 0.5) * YARD_W,
-  0,
-  (p.y - 0.5) * YARD_D,
-];
+
+// "Small planet" — Mario-Galaxy-style curved ground. The yard is a
+// patch on top of a sphere, so the horizon curves down at the edges
+// instead of meeting the sky in a sharp horizontal line.
+const PLANET_R = 14;
+const PLANET_CY = -PLANET_R + 0.05; // top of sphere just above y=0
+
+/** Y-coordinate of the planet's surface at a given (x, z). null if outside. */
+function planetY(x: number, z: number): number {
+  const distSq = x * x + z * z;
+  const r2 = PLANET_R * PLANET_R;
+  if (distSq >= r2) return PLANET_CY; // outside sphere — should never happen for in-yard props
+  return PLANET_CY + Math.sqrt(r2 - distSq);
+}
+
+const toWorld = (p: Pet3D): [number, number, number] => {
+  const x = (p.x - 0.5) * YARD_W;
+  const z = (p.y - 0.5) * YARD_D;
+  return [x, planetY(x, z), z];
+};
 
 function Creature({ pet }: { pet: Pet3D }) {
   const group = useRef<THREE.Group>(null);
@@ -46,7 +61,7 @@ function Creature({ pet }: { pet: Pet3D }) {
 
   useFrame((state, dt) => {
     if (!group.current) return;
-    const [wx, , wz] = toWorld(pet);
+    const [wx, wy, wz] = toWorld(pet);
     // smooth target follow
     group.current.position.x += (wx - group.current.position.x) * Math.min(1, dt * 8);
     group.current.position.z += (wz - group.current.position.z) * Math.min(1, dt * 8);
@@ -57,8 +72,8 @@ function Creature({ pet }: { pet: Pet3D }) {
     group.current.rotation.y += diff * Math.min(1, dt * 6);
 
     const t = state.clock.elapsedTime;
-    // bob
-    group.current.position.y = Math.sin(t * 4 + pet.bob) * 0.04;
+    // bob, layered on top of the planet's curved surface y
+    group.current.position.y = wy + Math.sin(t * 4 + pet.bob) * 0.04;
 
     // leg shuffle (only when moving)
     const speed = Math.hypot(pet.vx, pet.vy);
@@ -193,9 +208,34 @@ function Ears({ species, color, bodyColor }: { species: Species; color: string; 
   );
 }
 
-function Tree({ position, scale = 1 }: { position: [number, number, number]; scale?: number }) {
+/**
+ * Place a child node on the planet surface at horizontal (x, z),
+ * rotated so its local "up" aligns with the sphere normal at that
+ * point. Lets us write trees/flowers in their natural local space.
+ */
+function OnPlanet({
+  x,
+  z,
+  children,
+}: {
+  x: number;
+  z: number;
+  children: React.ReactNode;
+}) {
+  const y = planetY(x, z);
+  const ny = y - PLANET_CY;
+  const tiltX = -Math.atan2(z, ny);
+  const tiltZ = Math.atan2(x, ny);
   return (
-    <group position={position} scale={scale}>
+    <group position={[x, y, z]} rotation={[tiltX, 0, tiltZ]}>
+      {children}
+    </group>
+  );
+}
+
+function Tree({ scale = 1 }: { scale?: number }) {
+  return (
+    <group scale={scale}>
       <mesh position={[0, 0.4, 0]} castShadow>
         <cylinderGeometry args={[0.12, 0.16, 0.8, 8]} />
         <meshStandardMaterial color="#8a5a3a" roughness={0.9} />
@@ -216,9 +256,9 @@ function Tree({ position, scale = 1 }: { position: [number, number, number]; sca
   );
 }
 
-function Flower({ position, color }: { position: [number, number, number]; color: string }) {
+function Flower({ color }: { color: string }) {
   return (
-    <group position={position}>
+    <group>
       <mesh position={[0, 0.08, 0]}>
         <cylinderGeometry args={[0.01, 0.01, 0.16, 6]} />
         <meshStandardMaterial color="#5ba84a" />
@@ -234,14 +274,10 @@ function Flower({ position, color }: { position: [number, number, number]; color
 function Ground() {
   return (
     <>
-      {/* warm green earth under the grass */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow position={[0, 0, 0]}>
-        <planeGeometry args={[40, 40]} />
-        <meshStandardMaterial color="#5a9a54" roughness={1} />
-      </mesh>
-      {/* lighter patch in the play zone so pets pop */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow position={[0, 0.001, 0]}>
-        <circleGeometry args={[6, 48]} />
+      {/* The "small planet" — a sphere just below the play area whose
+         visible top is the curved hill the pets walk on. Soft warm green. */}
+      <mesh position={[0, PLANET_CY, 0]} receiveShadow>
+        <sphereGeometry args={[PLANET_R, 96, 64]} />
         <meshStandardMaterial color="#7ab370" roughness={1} />
       </mesh>
     </>
@@ -257,30 +293,38 @@ function GrassField() {
     if (!mesh) return;
     const tmp = new THREE.Object3D();
     const color = new THREE.Color();
-    const greens = ["#4f9a45", "#6cba5e", "#8fd07d", "#c2dc6f"]; // dark → light → chartreuse
+    const greens = ["#4f9a45", "#6cba5e", "#8fd07d", "#c2dc6f"];
 
     for (let i = 0; i < COUNT; i++) {
-      // dense toward center, thinning out
+      // Sample within a polar cap on the planet (radius up to 9 from
+      // axis), denser toward the top.
       const angle = Math.random() * Math.PI * 2;
       const r = Math.sqrt(Math.random()) * 9;
       const x = Math.cos(angle) * r;
       const z = Math.sin(angle) * r;
+      const y = planetY(x, z); // sit on the curved surface
 
       const scaleY = 0.7 + Math.random() * 0.9;
       const scaleXZ = 0.8 + Math.random() * 0.5;
 
-      tmp.position.set(x, 0, z);
+      tmp.position.set(x, y, z);
+      // Tilt each blade so its base aligns with the sphere's surface
+      // normal. The normal at (x,y,z) points away from planet center.
+      const nx = x;
+      const ny = y - PLANET_CY;
+      const nz = z;
+      const tiltX = Math.atan2(nz, ny); // around X
+      const tiltZ = -Math.atan2(nx, ny); // around Z
       tmp.rotation.set(
-        (Math.random() - 0.5) * 0.2,
+        tiltX + (Math.random() - 0.5) * 0.15,
         Math.random() * Math.PI * 2,
-        (Math.random() - 0.5) * 0.2
+        tiltZ + (Math.random() - 0.5) * 0.15
       );
       tmp.scale.set(scaleXZ, scaleY, scaleXZ);
       tmp.updateMatrix();
       mesh.setMatrixAt(i, tmp.matrix);
 
       color.set(greens[Math.floor(Math.random() * greens.length)]);
-      // tiny brightness jitter
       const j = 0.9 + Math.random() * 0.2;
       color.multiplyScalar(j);
       mesh.setColorAt(i, color);
@@ -295,7 +339,6 @@ function GrassField() {
       args={[undefined, undefined, COUNT]}
       castShadow
       receiveShadow
-      position={[0, 0.02, 0]}
     >
       <coneGeometry args={[0.028, 0.42, 3]} />
       <meshStandardMaterial roughness={0.95} />
@@ -315,8 +358,19 @@ function Clovers() {
     for (let i = 0; i < COUNT; i++) {
       const angle = Math.random() * Math.PI * 2;
       const r = Math.sqrt(Math.random()) * 7;
-      tmp.position.set(Math.cos(angle) * r, 0.01, Math.sin(angle) * r);
-      tmp.rotation.set(-Math.PI / 2, 0, Math.random() * Math.PI * 2);
+      const x = Math.cos(angle) * r;
+      const z = Math.sin(angle) * r;
+      const y = planetY(x, z) + 0.01;
+
+      // Orient the disc so it lies flat on the sphere surface (face up
+      // along the surface normal, then random spin for variety).
+      const nx = x;
+      const ny = y - PLANET_CY;
+      const nz = z;
+      const tiltX = -Math.atan2(nz, ny);
+      const tiltZ = Math.atan2(nx, ny);
+      tmp.position.set(x, y, z);
+      tmp.rotation.set(-Math.PI / 2 + tiltX, Math.random() * Math.PI * 2, tiltZ);
       const s = 0.12 + Math.random() * 0.08;
       tmp.scale.set(s, s, s);
       tmp.updateMatrix();
@@ -338,13 +392,14 @@ function Clovers() {
 
 function Scenery() {
   const flowers = useMemo(() => {
-    const arr: { pos: [number, number, number]; color: string }[] = [];
+    const arr: { x: number; z: number; color: string }[] = [];
     const colors = ["#FF9A8B", "#FFD56B", "#C3AED6", "#ffffff", "#FFB6D9", "#FF7B63"];
     for (let i = 0; i < 40; i++) {
       const angle = Math.random() * Math.PI * 2;
       const r = 2.5 + Math.random() * 6;
       arr.push({
-        pos: [Math.cos(angle) * r, 0, Math.sin(angle) * r],
+        x: Math.cos(angle) * r,
+        z: Math.sin(angle) * r,
         color: colors[Math.floor(Math.random() * colors.length)],
       });
     }
@@ -352,22 +407,28 @@ function Scenery() {
   }, []);
   return (
     <>
-      <Tree position={[-5, 0, -3]} scale={1.1} />
-      <Tree position={[5.5, 0, -2.5]} scale={1} />
-      <Tree position={[-4, 0, 3.5]} scale={0.85} />
-      <Tree position={[6, 0, 3]} scale={0.9} />
+      <OnPlanet x={-5} z={-3}><Tree scale={1.1} /></OnPlanet>
+      <OnPlanet x={5.5} z={-2.5}><Tree scale={1} /></OnPlanet>
+      <OnPlanet x={-4} z={3.5}><Tree scale={0.85} /></OnPlanet>
+      <OnPlanet x={6} z={3}><Tree scale={0.9} /></OnPlanet>
       {flowers.map((f, i) => (
-        <Flower key={i} position={f.pos} color={f.color} />
+        <OnPlanet key={i} x={f.x} z={f.z}>
+          <Flower color={f.color} />
+        </OnPlanet>
       ))}
       {/* distant bushes */}
-      <mesh position={[-7, 0.3, 0]} castShadow>
-        <sphereGeometry args={[0.6, 12, 10]} />
-        <meshStandardMaterial color="#6db968" roughness={1} />
-      </mesh>
-      <mesh position={[7, 0.25, 1]} castShadow>
-        <sphereGeometry args={[0.5, 12, 10]} />
-        <meshStandardMaterial color="#7ec878" roughness={1} />
-      </mesh>
+      <OnPlanet x={-7} z={0}>
+        <mesh position={[0, 0.3, 0]} castShadow>
+          <sphereGeometry args={[0.6, 12, 10]} />
+          <meshStandardMaterial color="#6db968" roughness={1} />
+        </mesh>
+      </OnPlanet>
+      <OnPlanet x={7} z={1}>
+        <mesh position={[0, 0.25, 0]} castShadow>
+          <sphereGeometry args={[0.5, 12, 10]} />
+          <meshStandardMaterial color="#7ec878" roughness={1} />
+        </mesh>
+      </OnPlanet>
       {/* sun orb */}
       <mesh position={[10, 9, -14]}>
         <sphereGeometry args={[1.6, 20, 20]} />
