@@ -97,6 +97,52 @@ function buildFavicon() {
 `;
 }
 
+// ---- iOS splash screens ------------------------------------------------------
+// Build a centered "boop + paw" lockup on a peach radial canvas at any size.
+function buildSplash(W, H) {
+  // Lockup: scale font to ~14% of the shorter dimension. App-icon-style.
+  const minDim = Math.min(W, H);
+  const fontSize = Math.round(minDim * 0.14);
+  const pawSize = Math.round(fontSize * 0.75);
+  const gap = Math.round(fontSize * 0.25);
+  const word = outlineWord("/tmp/fraunces.ttf", "boop", fontSize);
+  const totalWidth = word.width + gap + pawSize;
+  const startX = (W - totalWidth) / 2;
+  const centerY = H / 2;
+  const wordTx = startX + word.offsetX;
+  const wordTy = centerY + word.offsetY - word.height / 2;
+  const pawX = startX + word.width + gap;
+  const pawY = centerY - pawSize / 2;
+  const pawScale = pawSize / 64;
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="40%" r="70%">
+      <stop offset="0%" stop-color="${PEACH_LIGHT}"/>
+      <stop offset="100%" stop-color="${PEACH}"/>
+    </radialGradient>
+  </defs>
+  <rect width="${W}" height="${H}" fill="url(#bg)"/>
+  <g transform="translate(${wordTx.toFixed(3)} ${wordTy.toFixed(3)})" fill="${INK}">
+    <path d="${word.d}"/>
+  </g>
+  <g transform="translate(${pawX.toFixed(3)} ${pawY.toFixed(3)}) scale(${pawScale})">${PAW}
+  </g>
+</svg>
+`;
+}
+
+// Common iPhone splash sizes — exact device pixels required by iOS.
+// Each entry covers a family of devices that share the same screen dimensions.
+const IOS_SPLASHES = [
+  { name: "splash-1290x2796.png",  w: 1290, h: 2796 }, // iPhone 16 Pro Max / 15 Plus / 14 Pro Max
+  { name: "splash-1179x2556.png",  w: 1179, h: 2556 }, // iPhone 16 Pro / 15 / 14 Pro
+  { name: "splash-1170x2532.png",  w: 1170, h: 2532 }, // iPhone 14 / 13 / 12
+  { name: "splash-1080x2340.png",  w: 1080, h: 2340 }, // iPhone 13 mini / 12 mini
+  { name: "splash-828x1792.png",   w:  828, h: 1792 }, // iPhone XR / 11
+  { name: "splash-750x1334.png",   w:  750, h: 1334 }, // iPhone SE / 8
+];
+
 // ---- Write everything --------------------------------------------------------
 async function main() {
   const appleSvg = buildAppleIcon();
@@ -118,6 +164,16 @@ async function main() {
   await mkPng(appleSvg,   180, OUT("app/apple-icon.png"));
   await mkPng(appleSvg,   192, OUT("app/icon-192.png"));
   await mkPng(appleSvg,   512, OUT("app/icon-512.png"));
+
+  // iOS splash screens (raw exact-pixel PNGs at iPhone resolutions)
+  for (const s of IOS_SPLASHES) {
+    const svg = buildSplash(s.w, s.h);
+    await sharp(Buffer.from(svg), { density: 192 })
+      .resize(s.w, s.h)
+      .png()
+      .toFile(OUT(`public/${s.name}`));
+  }
+  console.log(`wrote ${IOS_SPLASHES.length} iOS splash screens to public/`);
 
   // favicon.ico — single 48×48 PNG wrapped as ICO. Sharp doesn't output ICO
   // natively; the simplest portable path is to embed a PNG in an ICO header.
