@@ -46,14 +46,20 @@ export function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  // MARKETING — apex / www — block /play, force people to the subdomain
+  // MARKETING — apex / www
   if (MARKETING_HOSTS.has(host)) {
+    // Root → straight into the game
+    if (path === "/") {
+      return NextResponse.redirect(`https://${PLAY_HOST}/`, 307);
+    }
+    // /play* → play subdomain (preserve any subpath)
     if (path === "/play" || path.startsWith("/play/")) {
       const target = new URL(req.url);
       target.host = PLAY_HOST;
       target.pathname = path.replace(/^\/play/, "") || "/";
       return NextResponse.redirect(target.toString(), 308);
     }
+    // /investors and anything else stays on marketing
     return NextResponse.next();
   }
 
