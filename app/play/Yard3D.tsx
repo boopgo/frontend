@@ -443,71 +443,52 @@ function Sun() {
 }
 
 /**
- * Positions the camera so that a fixed-size world rectangle
- * (YARD_W × YARD_D) is always fully framed, regardless of the
- * canvas aspect ratio. On wide canvases it uses a narrower fov;
- * on tall/portrait canvases it widens the fov so the full yard
- * width remains visible.
+ * Camera orbits the planet on an invisible shell. The planet itself
+ * stays put; one-finger drag walks the camera over the surface,
+ * always looking at planet center with "up" pointing radially out
+ * from the surface directly below. Two-finger gestures (future) will
+ * rotate camera at-spot.
  */
-function CameraRig() {
+type OrbitState = {
+  quat: THREE.Quaternion; // rotation applied to BASE_OFFSET
+  axis: THREE.Vector3;
+  speed: number;
+  dragging: boolean;
+};
+const PLANET_CENTER = new THREE.Vector3(0, PLANET_CY, 0);
+// Initial camera offset from planet center — this is the original
+// (0, 4.8, 5.5) world position translated into planet-center frame.
+const BASE_OFFSET = new THREE.Vector3(0, 4.8 - PLANET_CY, 5.5);
+
+function CameraOrbit({ orbitRef }: { orbitRef: React.MutableRefObject<OrbitState> }) {
   const { camera, size } = useThree();
+
   useEffect(() => {
-    const camHeight = 4.8;
-    const camZ = 5.5;
-    const target: [number, number, number] = [0, 0.2, 0];
-
-    camera.position.set(0, camHeight, camZ);
-    camera.lookAt(...target);
-
     if ("fov" in camera) {
       const aspect = size.width / Math.max(1, size.height);
-      const dist = Math.hypot(camHeight, camZ);
-      // need to fit half-width = YARD_W / 2 horizontally
-      const halfW = YARD_W / 2 + 0.4; // tiny padding
-      // horizontal fov required: 2 * atan(halfW / dist)
+      const dist = BASE_OFFSET.length();
+      const halfW = YARD_W / 2 + 0.4;
       const hFovRad = 2 * Math.atan(halfW / dist);
-      // convert to vertical fov via aspect
       const vFovRad = 2 * Math.atan(Math.tan(hFovRad / 2) / aspect);
       const vFovDeg = (vFovRad * 180) / Math.PI;
       camera.fov = Math.max(28, Math.min(85, vFovDeg));
       camera.updateProjectionMatrix();
     }
   }, [camera, size.width, size.height]);
-  return null;
-}
 
-/**
- * Free-spin the entire planet via accumulated quaternion. Drag in any
- * direction → surface scrolls that way (rotation axis is perpendicular
- * to the drag in screen space). Camera stays fixed; you're effectively
- * walking around the sphere.
- */
-type SpinState = {
-  quat: THREE.Quaternion;
-  axis: THREE.Vector3; // last drag axis (for inertia)
-  speed: number; // angular velocity magnitude (rad/s)
-  dragging: boolean;
-};
-function PlanetSpinner({
-  spinRef,
-  children,
-}: {
-  spinRef: React.MutableRefObject<SpinState>;
-  children: React.ReactNode;
-}) {
-  const groupRef = useRef<THREE.Group>(null);
   useFrame((_, dt) => {
-    const g = groupRef.current;
-    if (!g) return;
-    const s = spinRef.current;
+    const s = orbitRef.current;
     if (!s.dragging && s.speed > 0.0001) {
       const dq = new THREE.Quaternion().setFromAxisAngle(s.axis, s.speed * dt);
       s.quat.premultiply(dq);
-      s.speed *= Math.pow(0.04, dt); // friction
+      s.speed *= Math.pow(0.04, dt);
     }
-    g.quaternion.copy(s.quat);
+    const offset = BASE_OFFSET.clone().applyQuaternion(s.quat);
+    camera.position.copy(PLANET_CENTER).add(offset);
+    camera.up.copy(offset).normalize();
+    camera.lookAt(PLANET_CENTER);
   });
-  return <group ref={groupRef}>{children}</group>;
+  return null;
 }
 
 export default function Yard3D({
@@ -517,9 +498,9 @@ export default function Yard3D({
   pets: Pet3D[];
   onPetClick?: (id: string) => void;
 }) {
-  const spinRef = useRef<SpinState>({
+  const orbitRef = useRef<OrbitState>({
     quat: new THREE.Quaternion(),
-    axis: new THREE.Vector3(0, 1, 0),
+    axis: new THREE.Vector3(1, 0, 0),
     speed: 0,
     dragging: false,
   });
@@ -527,12 +508,12 @@ export default function Yard3D({
 
   const onPointerDown = (e: React.PointerEvent) => {
     (e.target as Element).setPointerCapture?.(e.pointerId);
-    spinRef.current.dragging = true;
-    spinRef.current.speed = 0;
+    orbitRef.current.dragging = true;
+    orbitRef.current.speed = 0;
     lastRef.current = { x: e.clientX, y: e.clientY, t: performance.now(), moved: false };
   };
   const onPointerMove = (e: React.PointerEvent) => {
-    const s = spinRef.current;
+    const s = orbitRef.current;
     if (!s.dragging) return;
     const dx = e.clientX - lastRef.current.x;
     const dy = e.clientY - lastRef.current.y;
@@ -542,22 +523,24 @@ export default function Yard3D({
     const sens = 0.005;
     const angle = Math.hypot(dx, dy) * sens;
     if (angle > 1e-5) {
-      // axis perpendicular to drag in screen plane: (dy, dx, 0) — drag right
-      // spins around +Y (surface moves right toward you), drag down spins
-      // around +X (surface scrolls down past camera).
-      const axis = new THREE.Vector3(dy, dx, 0).normalize();
-      const dq = new THREE.Quaternion().setFromAxisAngle(axis, angle);
-      // premultiply: rotation is applied in world space (camera frame),
-      // so the surface always tracks the user's thumb regardless of how
-      // the planet has been previously rotated.
-      s.quat.premultiply(dq);
-      s.axis.copy(axis);
+      // Drag right (dx>0) → camera should orbit left over the surface so
+      // the content under the thumb scrolls right with it. In camera-local
+      // space that's a rotation around camera-Y by +angle (axis (0,1,0))
+      // for dx, and around camera-X by -angle for dy (drag down → surface
+      // scrolls down → camera orbits up).
+      const axisLocal = new THREE.Vector3(-dy, dx, 0).normalize();
+      const dq = new THREE.Quaternion().setFromAxisAngle(axisLocal, angle);
+      // Post-multiply: delta is applied in the camera's *current* local
+      // frame, so the gesture always tracks the thumb regardless of where
+      // we've already orbited to.
+      s.quat.multiply(dq);
+      s.axis.copy(axisLocal);
       s.speed = angle / dt;
     }
     lastRef.current = { x: e.clientX, y: e.clientY, t: now, moved: lastRef.current.moved };
   };
   const onPointerUp = () => {
-    spinRef.current.dragging = false;
+    orbitRef.current.dragging = false;
   };
 
   return (
@@ -575,7 +558,7 @@ export default function Yard3D({
     >
       <color attach="background" args={["#b9e0ff"]} />
       <fog attach="fog" args={["#cfe9f7", 14, 26]} />
-      <CameraRig />
+      <CameraOrbit orbitRef={orbitRef} />
 
       <ambientLight intensity={0.55} />
       <directionalLight
@@ -592,26 +575,23 @@ export default function Yard3D({
       <hemisphereLight args={["#ffe9b8", "#9fd88a", 0.4]} />
 
       <Sun />
-
-      <PlanetSpinner spinRef={spinRef}>
-        <Ground />
-        <Clovers />
-        <GrassField />
-        <Scenery />
-        {pets.map((p) => (
-          <group
-            key={p.id}
-            onClick={(e) => {
-              if (lastRef.current.moved) return;
-              e.stopPropagation();
-              onPetClick?.(p.id);
-            }}
-          >
-            <Creature pet={p} />
-          </group>
-        ))}
-        <ContactShadows position={[0, 0.01, 0]} opacity={0.35} scale={20} blur={2.4} far={4} />
-      </PlanetSpinner>
+      <Ground />
+      <Clovers />
+      <GrassField />
+      <Scenery />
+      {pets.map((p) => (
+        <group
+          key={p.id}
+          onClick={(e) => {
+            if (lastRef.current.moved) return;
+            e.stopPropagation();
+            onPetClick?.(p.id);
+          }}
+        >
+          <Creature pet={p} />
+        </group>
+      ))}
+      <ContactShadows position={[0, 0.01, 0]} opacity={0.35} scale={20} blur={2.4} far={4} />
     </Canvas>
   );
 }
