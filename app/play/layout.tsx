@@ -6,6 +6,13 @@ export const metadata: Metadata = {
   title: "boop — play",
   robots: { index: false, follow: false },
   manifest: "/manifest.webmanifest",
+  // Next.js's appleWebApp.capable only emits the modern <meta name="mobile-web-app-capable">,
+  // but iOS Safari still requires the apple-prefixed alias to enable standalone mode on
+  // "Add to Home Screen". Without it, the icon opens in Safari with chrome (web clip)
+  // instead of as a real PWA. Force the legacy tag explicitly.
+  other: {
+    "apple-mobile-web-app-capable": "yes",
+  },
   appleWebApp: {
     capable: true,
     title: "Boop AI",
