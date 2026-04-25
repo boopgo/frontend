@@ -280,7 +280,7 @@ export default function LogoLab() {
         <h1 className="winners-title">The boop mark</h1>
         <p className="winners-sub">
           Standard chunky 4-toe paw, coral. Wordmark in Fraunces 800 ink.
-          App icon on a peach → cream radial that ties to the /demo yard.
+          App icon on a peach → cream radial that ties to the play yard.
         </p>
         <div className="winners-row">
           <div className="winner-card">
@@ -294,7 +294,7 @@ export default function LogoLab() {
             <span className="winner-cap">App icon</span>
             <div className="winner-icon" style={{ background: "radial-gradient(circle at 50% 35%, #FFE8C5 0%, #FFD6A5 100%)" }}>
               <span className="winner-icon-word">boop</span>
-              <StandardPawChunky size={28} />
+              <StandardPawChunky size={22} />
             </div>
           </div>
           <div className="winner-card">

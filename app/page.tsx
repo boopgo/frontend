@@ -2,9 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
-import { PALETTES } from "./demo/PetCreature";
+import { PALETTES } from "./play/PetCreature";
 
-const Yard3D = dynamic(() => import("./demo/Yard3D"), { ssr: false });
+const Yard3D = dynamic(() => import("./play/Yard3D"), { ssr: false });
 
 type Audience = "pet-parent" | "press" | "brand";
 
@@ -188,7 +188,7 @@ export default function Home() {
                   <h3>Say hello.</h3>
                   <p>What&apos;s their name?</p>
                   <div className="name-input-mock">Mochi</div>
-                  <a className="reveal-cta" href="/demo">Next →</a>
+                  <a className="reveal-cta" href="https://play.boopai.app/">Next →</a>
                 </div>
               </div>
             </div>
@@ -428,7 +428,16 @@ export default function Home() {
 
       <footer>
         <div className="wrap">
-          <div className="logo">boop</div>
+          <div className="logo">
+            boop
+            <svg className="paw" width="16" height="16" viewBox="0 0 64 64" aria-hidden="true">
+              <path d="M32 26 Q22 26 17 33 Q11 42 16 51 Q22 58 32 58 Q42 58 48 51 Q53 42 47 33 Q42 26 32 26 Z" fill="#FF9A8B" />
+              <ellipse cx="13" cy="26" rx="5.5" ry="6.5" fill="#FF9A8B" />
+              <ellipse cx="24" cy="13" rx="6"   ry="7"   fill="#FF9A8B" />
+              <ellipse cx="40" cy="13" rx="6"   ry="7"   fill="#FF9A8B" />
+              <ellipse cx="51" cy="26" rx="5.5" ry="6.5" fill="#FF9A8B" />
+            </svg>
+          </div>
           <div>
             <a href="/investors">For investors →</a>
             <a href="#">Privacy</a>
