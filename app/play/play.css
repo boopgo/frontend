@@ -2,8 +2,15 @@
    DEMO — mobile mockup for designer/dev reference
    ============================================================ */
 
+/* Set the html/body background to sky-blue on the play surface so any
+   safe-area / notch area shows seamless sky instead of peach when the
+   PWA is launched in standalone mode. dvh = dynamic viewport height,
+   the modern unit that correctly accounts for browser chrome / status
+   bar across iOS + Android. */
+html, body { background: #b9e0ff; }
+
 .demo-stage {
-  min-height: 100vh;
+  min-height: 100dvh;
   background:
     radial-gradient(900px 500px at 80% -10%, var(--sun) 0%, transparent 55%),
     radial-gradient(700px 500px at 10% 110%, var(--lilac) 0%, transparent 60%),
@@ -20,7 +27,7 @@
 .phone {
   width: 390px;
   height: 780px;
-  max-height: calc(100vh - 48px);
+  max-height: calc(100dvh - 48px);
   background: var(--cream);
   border-radius: 44px;
   overflow: hidden;
@@ -43,13 +50,21 @@
   z-index: 30;
 }
 @media (max-width: 500px) {
-  .demo-stage { padding: 0; }
+  html, body {
+    height: 100dvh;
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
+  /* Stage is sky-blue too so any uncovered area (safe-area, notch
+     padding, rubber-band overscroll) looks like seamless sky. */
+  .demo-stage { padding: 0; background: #b9e0ff; min-height: 100dvh; }
   .phone {
     width: 100vw;
-    height: 100vh;
+    height: 100dvh;
     max-height: none;
     border-radius: 0;
     box-shadow: none;
+    background: #b9e0ff;
   }
   .phone::before { display: none; }
 }
@@ -727,7 +742,7 @@
   flex: 1;
   position: relative;
   overflow: hidden;
-  background: #ffd9bf;
+  background: #b9e0ff;
 }
 .yard canvas { display: block; width: 100% !important; height: 100% !important; }
 .yard .sun, .reveal-yard .sun {
@@ -796,8 +811,8 @@
 /* compact home menu (trigger pinned bottom-right, items float up on open) */
 .home-menu {
   position: absolute;
-  right: 20px;
-  bottom: 20px;
+  right: calc(20px + env(safe-area-inset-right, 0px));
+  bottom: calc(20px + env(safe-area-inset-bottom, 0px));
   width: 44px;
   height: 44px;
   z-index: 20;
