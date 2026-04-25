@@ -443,57 +443,58 @@ function Sun() {
 }
 
 /**
- * Camera orbits the planet on an invisible shell. The planet itself
- * stays put; one-finger drag walks the camera over the surface,
- * always looking at planet center with "up" pointing radially out
- * from the surface directly below. Two-finger gestures (future) will
- * rotate camera at-spot.
+ * Globe-explorer camera. Tracks where you're standing on the planet
+ * (a unit vector from center), which way you're facing (a tangent
+ * vector), and how zoomed in you are. One-finger drag walks the
+ * standing point across the surface in the drag direction —
+ * non-degenerate everywhere, including at the pole. Two-finger pinch
+ * adjusts zoom; two-finger twist rotates heading around the standing
+ * point ("compass spin").
  */
-type OrbitState = {
-  quat: THREE.Quaternion;
+type ViewState = {
+  standing: THREE.Vector3; // unit vector from planet center
+  heading: THREE.Vector3; // unit tangent at standing point
+  zoom: number; // 1 = default framing
 };
+
 const PLANET_CENTER = new THREE.Vector3(0, PLANET_CY, 0);
-// Viewer rig in planet-center frame, captured from the original
-// composition (camera at world (0, 4.8, 5.5) looking at (0, 0.2, 0)
-// with world up). Orbit rotates all three vectors together.
-const REST_CAM = new THREE.Vector3(0, 4.8 - PLANET_CY, 5.5);
-const REST_TARGET = new THREE.Vector3(0, 0.2 - PLANET_CY, 0);
-const REST_UP = new THREE.Vector3(0, 1, 0);
-const REST_DIST = Math.hypot(4.8, 5.5); // camera-to-target, for fov
+// At rest the camera sits at world (0, 4.8, 5.5) looking at (0, 0.2, 0).
+// Decompose that camera-to-target offset into radial-up and tangent-back
+// components in the standing frame.
+const REST_TARGET_LIFT = 0.2; // surface target sits this far above sphere skin
+const REST_RADIAL = 4.6; // camera height above target (radial)
+const REST_BACK = 5.5; // camera distance behind target (along -heading)
+const REST_DIST = Math.hypot(REST_RADIAL, REST_BACK); // for fov
 
 function CameraOrbit({
-  orbitRef,
-  zoom,
+  stateRef,
 }: {
-  orbitRef: React.MutableRefObject<OrbitState>;
-  zoom: number;
+  stateRef: React.MutableRefObject<ViewState>;
 }) {
   const { camera, size } = useThree();
 
   useEffect(() => {
     if ("fov" in camera) {
       const aspect = size.width / Math.max(1, size.height);
-      const dist = REST_DIST * zoom;
       const halfW = YARD_W / 2 + 0.4;
-      const hFovRad = 2 * Math.atan(halfW / dist);
+      const hFovRad = 2 * Math.atan(halfW / REST_DIST);
       const vFovRad = 2 * Math.atan(Math.tan(hFovRad / 2) / aspect);
       const vFovDeg = (vFovRad * 180) / Math.PI;
       camera.fov = Math.max(28, Math.min(85, vFovDeg));
       camera.updateProjectionMatrix();
     }
-  }, [camera, size.width, size.height, zoom]);
+  }, [camera, size.width, size.height]);
 
   useFrame(() => {
-    const s = orbitRef.current;
-    // No inertia: when the finger is up, the camera holds its pose
-    // exactly. Rotate the rig (cam, look-at, up) around planet center.
-    const target = REST_TARGET.clone().applyQuaternion(s.quat);
-    const camOut = REST_CAM.clone().sub(REST_TARGET).multiplyScalar(zoom).applyQuaternion(s.quat);
-    const up = REST_UP.clone().applyQuaternion(s.quat);
-    camera.position.copy(PLANET_CENTER).add(target).add(camOut);
-    camera.up.copy(up);
-    const lookAt = PLANET_CENTER.clone().add(target);
-    camera.lookAt(lookAt);
+    const s = stateRef.current;
+    const target = PLANET_CENTER.clone()
+      .addScaledVector(s.standing, PLANET_R + REST_TARGET_LIFT);
+    const camPos = target.clone()
+      .addScaledVector(s.standing, REST_RADIAL * s.zoom)
+      .addScaledVector(s.heading, -REST_BACK * s.zoom);
+    camera.position.copy(camPos);
+    camera.up.copy(s.standing);
+    camera.lookAt(target);
   });
   return null;
 }
@@ -505,49 +506,114 @@ export default function Yard3D({
   pets: Pet3D[];
   onPetClick?: (id: string) => void;
 }) {
-  const orbitRef = useRef<OrbitState>({
-    quat: new THREE.Quaternion(),
+  const stateRef = useRef<ViewState>({
+    standing: new THREE.Vector3(0, 1, 0),
+    heading: new THREE.Vector3(0, 0, -1),
+    zoom: 1,
   });
-  // Track only the primary (first) pointer. Additional fingers are
-  // ignored for now — multi-touch (pinch/twist) will be wired up later.
-  const activePointerRef = useRef<number | null>(null);
-  const lastRef = useRef({ x: 0, y: 0, moved: false });
-  const [zoom, setZoom] = useState(1);
+  // Tracks active pointers by id (multi-touch). 1 active = pan,
+  // 2 active = pinch+twist.
+  const pointersRef = useRef<Map<number, { x: number; y: number }>>(new Map());
+  const gestureRef = useRef<{ pinchDist: number; twistAngle: number } | null>(null);
+  const movedRef = useRef(false);
+  const [zoomTick, setZoomTick] = useState(0); // forces re-render when zoom buttons run
+  const ZOOM_MIN = 0.4;
+  const ZOOM_MAX = 2.2;
   const ZOOM_STEPS = [0.6, 1, 1.6];
 
+  const setZoom = (z: number) => {
+    stateRef.current.zoom = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, z));
+    setZoomTick((t) => t + 1);
+  };
+
   const onPointerDown = (e: React.PointerEvent) => {
-    if (activePointerRef.current !== null) return; // already tracking one
     (e.target as Element).setPointerCapture?.(e.pointerId);
-    activePointerRef.current = e.pointerId;
-    lastRef.current = { x: e.clientX, y: e.clientY, moved: false };
-  };
-  const onPointerMove = (e: React.PointerEvent) => {
-    if (e.pointerId !== activePointerRef.current) return;
-    const s = orbitRef.current;
-    const dx = e.clientX - lastRef.current.x;
-    const dy = e.clientY - lastRef.current.y;
-    if (Math.abs(dx) + Math.abs(dy) > 3) lastRef.current.moved = true;
-    const sens = 0.0025;
-    const angle = Math.hypot(dx, dy) * sens;
-    if (angle > 1e-5) {
-      // Drag right → camera orbits left so content tracks the thumb.
-      // Axis is in the camera's local frame; post-multiply applies it
-      // in that frame so the gesture stays consistent as we rotate.
-      const axisLocal = new THREE.Vector3(-dy, dx, 0).normalize();
-      const dq = new THREE.Quaternion().setFromAxisAngle(axisLocal, angle);
-      s.quat.multiply(dq);
+    pointersRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    movedRef.current = false;
+    if (pointersRef.current.size === 2) {
+      const pts = Array.from(pointersRef.current.values());
+      const [a, b] = pts;
+      gestureRef.current = {
+        pinchDist: Math.hypot(b.x - a.x, b.y - a.y),
+        twistAngle: Math.atan2(b.y - a.y, b.x - a.x),
+      };
     }
-    lastRef.current = { x: e.clientX, y: e.clientY, moved: lastRef.current.moved };
   };
+
+  const onPointerMove = (e: React.PointerEvent) => {
+    const prev = pointersRef.current.get(e.pointerId);
+    if (!prev) return;
+    const next = { x: e.clientX, y: e.clientY };
+    pointersRef.current.set(e.pointerId, next);
+    const s = stateRef.current;
+
+    if (pointersRef.current.size === 1) {
+      // ── one-finger pan: parallel-transport the standing point across
+      // the surface in the drag direction. Heading rotates with it so
+      // "forward" stays consistent.
+      const dx = next.x - prev.x;
+      const dy = next.y - prev.y;
+      if (Math.abs(dx) + Math.abs(dy) > 3) movedRef.current = true;
+      const right = new THREE.Vector3().crossVectors(s.heading, s.standing).normalize();
+      const tangent = right.clone().multiplyScalar(dx).addScaledVector(s.heading, dy);
+      const mag = tangent.length();
+      if (mag < 1e-5) return;
+      tangent.divideScalar(mag);
+      const sens = 0.006 * s.zoom; // px → world arc; closer zoom = finer steps
+      const angle = (mag * sens) / PLANET_R;
+      const axis = new THREE.Vector3().crossVectors(s.standing, tangent).normalize();
+      if (axis.lengthSq() < 1e-8) return;
+      const q = new THREE.Quaternion().setFromAxisAngle(axis, angle);
+      s.standing.applyQuaternion(q).normalize();
+      s.heading.applyQuaternion(q);
+      // re-orthogonalize heading to be tangent (perpendicular to standing)
+      s.heading.addScaledVector(s.standing, -s.heading.dot(s.standing)).normalize();
+      return;
+    }
+
+    if (pointersRef.current.size === 2 && gestureRef.current) {
+      const pts = Array.from(pointersRef.current.values());
+      const [a, b] = pts;
+      const newDist = Math.hypot(b.x - a.x, b.y - a.y);
+      const newAngle = Math.atan2(b.y - a.y, b.x - a.x);
+      const distRatio = newDist / Math.max(1, gestureRef.current.pinchDist);
+      const dAngle = newAngle - gestureRef.current.twistAngle;
+      // pinch out (distRatio > 1) → zoom IN (closer) → smaller zoom value
+      const zoomDelta = 1 / distRatio;
+      const nextZoom = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, s.zoom * zoomDelta));
+      s.zoom = nextZoom;
+      // twist heading around standing axis; small dead-zone (~3°) to
+      // avoid accidental rotation during pinch
+      if (Math.abs(dAngle) > 0.05) {
+        const q = new THREE.Quaternion().setFromAxisAngle(s.standing, -dAngle);
+        s.heading.applyQuaternion(q);
+        s.heading.addScaledVector(s.standing, -s.heading.dot(s.standing)).normalize();
+      }
+      gestureRef.current = { pinchDist: newDist, twistAngle: newAngle };
+      movedRef.current = true;
+      setZoomTick((t) => t + 1);
+      return;
+    }
+  };
+
   const onPointerUp = (e: React.PointerEvent) => {
-    if (e.pointerId !== activePointerRef.current) return;
-    activePointerRef.current = null;
+    pointersRef.current.delete(e.pointerId);
+    if (pointersRef.current.size < 2) gestureRef.current = null;
   };
 
   const cycleZoom = (dir: 1 | -1) => {
-    const i = ZOOM_STEPS.indexOf(zoom);
-    const safe = i === -1 ? 1 : i;
-    const next = Math.max(0, Math.min(ZOOM_STEPS.length - 1, safe + dir));
+    const cur = stateRef.current.zoom;
+    // find the nearest step and move from there
+    let i = 0;
+    let best = Infinity;
+    for (let k = 0; k < ZOOM_STEPS.length; k++) {
+      const d = Math.abs(ZOOM_STEPS[k] - cur);
+      if (d < best) {
+        best = d;
+        i = k;
+      }
+    }
+    const next = Math.max(0, Math.min(ZOOM_STEPS.length - 1, i + dir));
     setZoom(ZOOM_STEPS[next]);
   };
 
@@ -567,7 +633,7 @@ export default function Yard3D({
     >
       <color attach="background" args={["#b9e0ff"]} />
       <fog attach="fog" args={["#cfe9f7", 14, 26]} />
-      <CameraOrbit orbitRef={orbitRef} zoom={zoom} />
+      <CameraOrbit stateRef={stateRef} />
 
       <ambientLight intensity={0.55} />
       <directionalLight
@@ -592,7 +658,7 @@ export default function Yard3D({
         <group
           key={p.id}
           onClick={(e) => {
-            if (lastRef.current.moved) return;
+            if (movedRef.current) return;
             e.stopPropagation();
             onPetClick?.(p.id);
           }}
@@ -624,8 +690,12 @@ export default function Yard3D({
       </button>
       <button
         type="button"
-        aria-label="Reset zoom"
-        onClick={() => setZoom(1)}
+        aria-label="Reset view"
+        onClick={() => {
+          stateRef.current.standing.set(0, 1, 0);
+          stateRef.current.heading.set(0, 0, -1);
+          setZoom(1);
+        }}
         style={{ ...zoomBtnStyle, fontSize: 12 }}
       >
         ⟳
