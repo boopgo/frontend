@@ -5,9 +5,10 @@ import InstallPrompt from "./InstallPrompt";
 export const metadata: Metadata = {
   title: "boop — play",
   robots: { index: false, follow: false },
+  manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
-    title: "boop",
+    title: "Boop AI",
     statusBarStyle: "default",
     startupImage: [
       // iPhone 16 Pro Max / 15 Plus / 14 Pro Max

@@ -2,9 +2,12 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "boop, your boop, booped",
+  title: "Boop: Boop your Boop",
   description:
     "Snap a photo, get your boop — your pet's digital twin, ready to live in your pocket.",
+  appleWebApp: {
+    title: "Boop AI",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

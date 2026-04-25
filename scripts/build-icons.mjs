@@ -50,28 +50,23 @@ function outlineWord(fontPath, text, fontSize) {
   };
 }
 
-// ---- Build apple-icon 180×180 ------------------------------------------------
+// ---- Build apple-icon 180×180 (paw-only, fills canvas) -----------------------
 function buildAppleIcon() {
   const ICON = 180;
-  const WORD_FONT_SIZE = 40;
-  const PAW_SIZE = 30; // 0.75 of word — matches the unified ~0.73 brand ratio
-  const GAP = 10;
+  // Paw fills ~70% of the canvas. The paw's visible bbox in 64-coord space
+  // is roughly (7.5, 6) to (56.5, 58) — i.e. the paw is taller than it is
+  // wide (52 vs 49). Scale so the height fills the target visual area.
+  const TARGET = 130;          // visual size we want the paw to occupy
+  const PAW_VISIBLE_H = 52;    // y=6..58 in source coords
+  const PAW_VISIBLE_W = 49;    // x=7.5..56.5 in source coords
+  const PAW_VISIBLE_X = 7.5;
+  const PAW_VISIBLE_Y = 6;
 
-  const word = outlineWord("/tmp/fraunces.ttf", "boop", WORD_FONT_SIZE);
-  const totalWidth = word.width + GAP + PAW_SIZE;
-  const startX = (ICON - totalWidth) / 2;
-  const centerY = ICON / 2;
-
-  // Word positioning: after translate by (startX + offsetX, centerY + offsetY - height/2)
-  const wordTx = startX + word.offsetX;
-  const wordTy = centerY + word.offsetY - word.height / 2;
-
-  // Paw: center vertically on centerY. In 64-coord space, the paw's visible bbox
-  // is roughly y=6..58, so its visual center is y=32. Scaled to PAW_SIZE, center
-  // at PAW_SIZE/2. Place paw top-left such that its center aligns with centerY.
-  const pawX = startX + word.width + GAP;
-  const pawY = centerY - PAW_SIZE / 2;
-  const pawScale = PAW_SIZE / 64;
+  const scale = TARGET / PAW_VISIBLE_H;
+  const drawnW = PAW_VISIBLE_W * scale;
+  const drawnH = PAW_VISIBLE_H * scale;
+  const pawX = (ICON - drawnW) / 2 - PAW_VISIBLE_X * scale;
+  const pawY = (ICON - drawnH) / 2 - PAW_VISIBLE_Y * scale;
 
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${ICON} ${ICON}" width="${ICON}" height="${ICON}">
   <defs>
@@ -81,10 +76,7 @@ function buildAppleIcon() {
     </radialGradient>
   </defs>
   <rect width="${ICON}" height="${ICON}" rx="40" fill="url(#bg)"/>
-  <g transform="translate(${wordTx.toFixed(3)} ${wordTy.toFixed(3)})" fill="${INK}">
-    <path d="${word.d}"/>
-  </g>
-  <g transform="translate(${pawX.toFixed(3)} ${pawY.toFixed(3)}) scale(${pawScale})">${PAW}
+  <g transform="translate(${pawX.toFixed(3)} ${pawY.toFixed(3)}) scale(${scale.toFixed(4)})">${PAW}
   </g>
 </svg>
 `;
@@ -164,6 +156,7 @@ async function main() {
   await mkPng(appleSvg,   180, OUT("app/apple-icon.png"));
   await mkPng(appleSvg,   192, OUT("app/icon-192.png"));
   await mkPng(appleSvg,   512, OUT("app/icon-512.png"));
+  await mkPng(appleSvg,  1024, OUT("app/icon-1024.png")); // App Store / high-DPI launchers
 
   // iOS splash screens (raw exact-pixel PNGs at iPhone resolutions)
   for (const s of IOS_SPLASHES) {
