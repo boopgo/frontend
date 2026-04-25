@@ -472,6 +472,40 @@ function CameraRig() {
   return null;
 }
 
+/**
+ * Rotates the entire planet (ground + props + pets) around Y when the
+ * user drags horizontally. Vertical drags tilt the planet slightly so
+ * you can peek over the curve (clamped). Inertia carries the spin
+ * after release and decays back to rest.
+ */
+function PlanetSpinner({
+  dragRef,
+  children,
+}: {
+  dragRef: React.MutableRefObject<{ rotY: number; rotX: number; velY: number; velX: number; dragging: boolean }>;
+  children: React.ReactNode;
+}) {
+  const groupRef = useRef<THREE.Group>(null);
+  useFrame((_, dt) => {
+    const g = groupRef.current;
+    if (!g) return;
+    const s = dragRef.current;
+    if (!s.dragging) {
+      // inertia + decay back toward rotX = 0
+      s.rotY += s.velY * dt;
+      s.rotX += s.velX * dt;
+      s.velY *= Math.pow(0.02, dt); // friction
+      s.velX *= Math.pow(0.02, dt);
+      s.rotX += (0 - s.rotX) * Math.min(1, dt * 1.5); // ease tilt back
+    }
+    // clamp tilt
+    s.rotX = Math.max(-0.5, Math.min(0.5, s.rotX));
+    g.rotation.y = s.rotY;
+    g.rotation.x = s.rotX;
+  });
+  return <group ref={groupRef}>{children}</group>;
+}
+
 export default function Yard3D({
   pets,
   onPetClick,
@@ -479,8 +513,47 @@ export default function Yard3D({
   pets: Pet3D[];
   onPetClick?: (id: string) => void;
 }) {
+  const dragRef = useRef({ rotY: 0, rotX: 0, velY: 0, velX: 0, dragging: false });
+  const lastRef = useRef({ x: 0, y: 0, t: 0, moved: false });
+
+  const onPointerDown = (e: React.PointerEvent) => {
+    (e.target as Element).setPointerCapture?.(e.pointerId);
+    dragRef.current.dragging = true;
+    dragRef.current.velY = 0;
+    dragRef.current.velX = 0;
+    lastRef.current = { x: e.clientX, y: e.clientY, t: performance.now(), moved: false };
+  };
+  const onPointerMove = (e: React.PointerEvent) => {
+    if (!dragRef.current.dragging) return;
+    const dx = e.clientX - lastRef.current.x;
+    const dy = e.clientY - lastRef.current.y;
+    if (Math.abs(dx) + Math.abs(dy) > 3) lastRef.current.moved = true;
+    const now = performance.now();
+    const dt = Math.max(1, now - lastRef.current.t) / 1000;
+    const sens = 0.005;
+    dragRef.current.rotY += dx * sens;
+    dragRef.current.rotX += dy * sens * 0.6;
+    dragRef.current.velY = (dx * sens) / dt;
+    dragRef.current.velX = (dy * sens * 0.6) / dt;
+    lastRef.current = { x: e.clientX, y: e.clientY, t: now, moved: lastRef.current.moved };
+  };
+  const onPointerUp = () => {
+    dragRef.current.dragging = false;
+  };
+
   return (
-    <Canvas shadows dpr={[1, 2]} gl={{ antialias: true }} camera={{ fov: 45, near: 0.1, far: 60 }}>
+    <Canvas
+      shadows
+      dpr={[1, 2]}
+      gl={{ antialias: true }}
+      camera={{ fov: 45, near: 0.1, far: 60 }}
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={onPointerUp}
+      onPointerLeave={onPointerUp}
+      onPointerCancel={onPointerUp}
+      style={{ touchAction: "none" }}
+    >
       <color attach="background" args={["#b9e0ff"]} />
       <fog attach="fog" args={["#cfe9f7", 14, 26]} />
       <CameraRig />
@@ -499,16 +572,25 @@ export default function Yard3D({
       />
       <hemisphereLight args={["#ffe9b8", "#9fd88a", 0.4]} />
 
-      <Ground />
-      <Clovers />
-      <GrassField />
-      <Scenery />
-      {pets.map((p) => (
-        <group key={p.id} onClick={() => onPetClick?.(p.id)}>
-          <Creature pet={p} />
-        </group>
-      ))}
-      <ContactShadows position={[0, 0.01, 0]} opacity={0.35} scale={20} blur={2.4} far={4} />
+      <PlanetSpinner dragRef={dragRef}>
+        <Ground />
+        <Clovers />
+        <GrassField />
+        <Scenery />
+        {pets.map((p) => (
+          <group
+            key={p.id}
+            onClick={(e) => {
+              if (lastRef.current.moved) return;
+              e.stopPropagation();
+              onPetClick?.(p.id);
+            }}
+          >
+            <Creature pet={p} />
+          </group>
+        ))}
+        <ContactShadows position={[0, 0.01, 0]} opacity={0.35} scale={20} blur={2.4} far={4} />
+      </PlanetSpinner>
     </Canvas>
   );
 }
