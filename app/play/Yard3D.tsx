@@ -450,10 +450,7 @@ function Sun() {
  * rotate camera at-spot.
  */
 type OrbitState = {
-  quat: THREE.Quaternion; // rotation applied to BASE_OFFSET
-  axis: THREE.Vector3;
-  speed: number;
-  dragging: boolean;
+  quat: THREE.Quaternion;
 };
 const PLANET_CENTER = new THREE.Vector3(0, PLANET_CY, 0);
 // Viewer rig in planet-center frame, captured from the original
@@ -486,16 +483,10 @@ function CameraOrbit({
     }
   }, [camera, size.width, size.height, zoom]);
 
-  useFrame((_, dt) => {
+  useFrame(() => {
     const s = orbitRef.current;
-    if (!s.dragging && s.speed > 0.0001) {
-      const dq = new THREE.Quaternion().setFromAxisAngle(s.axis, s.speed * dt);
-      s.quat.premultiply(dq);
-      s.speed *= Math.pow(0.04, dt);
-    }
-    // Rotate the entire rig (cam pos, look-at, up) around planet center.
-    // Zoom scales the camera-out-from-target vector only, so the look-at
-    // point on the surface stays fixed.
+    // No inertia: when the finger is up, the camera holds its pose
+    // exactly. Rotate the rig (cam, look-at, up) around planet center.
     const target = REST_TARGET.clone().applyQuaternion(s.quat);
     const camOut = REST_CAM.clone().sub(REST_TARGET).multiplyScalar(zoom).applyQuaternion(s.quat);
     const up = REST_UP.clone().applyQuaternion(s.quat);
@@ -516,50 +507,41 @@ export default function Yard3D({
 }) {
   const orbitRef = useRef<OrbitState>({
     quat: new THREE.Quaternion(),
-    axis: new THREE.Vector3(1, 0, 0),
-    speed: 0,
-    dragging: false,
   });
-  const lastRef = useRef({ x: 0, y: 0, t: 0, moved: false });
-  // zoom = 1 is the default framing. Smaller = closer, larger = farther.
+  // Track only the primary (first) pointer. Additional fingers are
+  // ignored for now — multi-touch (pinch/twist) will be wired up later.
+  const activePointerRef = useRef<number | null>(null);
+  const lastRef = useRef({ x: 0, y: 0, moved: false });
   const [zoom, setZoom] = useState(1);
   const ZOOM_STEPS = [0.6, 1, 1.6];
 
   const onPointerDown = (e: React.PointerEvent) => {
+    if (activePointerRef.current !== null) return; // already tracking one
     (e.target as Element).setPointerCapture?.(e.pointerId);
-    orbitRef.current.dragging = true;
-    orbitRef.current.speed = 0;
-    lastRef.current = { x: e.clientX, y: e.clientY, t: performance.now(), moved: false };
+    activePointerRef.current = e.pointerId;
+    lastRef.current = { x: e.clientX, y: e.clientY, moved: false };
   };
   const onPointerMove = (e: React.PointerEvent) => {
+    if (e.pointerId !== activePointerRef.current) return;
     const s = orbitRef.current;
-    if (!s.dragging) return;
     const dx = e.clientX - lastRef.current.x;
     const dy = e.clientY - lastRef.current.y;
     if (Math.abs(dx) + Math.abs(dy) > 3) lastRef.current.moved = true;
-    const now = performance.now();
-    const dt = Math.max(1, now - lastRef.current.t) / 1000;
-    const sens = 0.005;
+    const sens = 0.0025;
     const angle = Math.hypot(dx, dy) * sens;
     if (angle > 1e-5) {
-      // Drag right (dx>0) → camera should orbit left over the surface so
-      // the content under the thumb scrolls right with it. In camera-local
-      // space that's a rotation around camera-Y by +angle (axis (0,1,0))
-      // for dx, and around camera-X by -angle for dy (drag down → surface
-      // scrolls down → camera orbits up).
+      // Drag right → camera orbits left so content tracks the thumb.
+      // Axis is in the camera's local frame; post-multiply applies it
+      // in that frame so the gesture stays consistent as we rotate.
       const axisLocal = new THREE.Vector3(-dy, dx, 0).normalize();
       const dq = new THREE.Quaternion().setFromAxisAngle(axisLocal, angle);
-      // Post-multiply: delta is applied in the camera's *current* local
-      // frame, so the gesture always tracks the thumb regardless of where
-      // we've already orbited to.
       s.quat.multiply(dq);
-      s.axis.copy(axisLocal);
-      s.speed = angle / dt;
     }
-    lastRef.current = { x: e.clientX, y: e.clientY, t: now, moved: lastRef.current.moved };
+    lastRef.current = { x: e.clientX, y: e.clientY, moved: lastRef.current.moved };
   };
-  const onPointerUp = () => {
-    orbitRef.current.dragging = false;
+  const onPointerUp = (e: React.PointerEvent) => {
+    if (e.pointerId !== activePointerRef.current) return;
+    activePointerRef.current = null;
   };
 
   const cycleZoom = (dir: 1 | -1) => {
