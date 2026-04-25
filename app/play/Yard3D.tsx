@@ -514,7 +514,19 @@ export default function Yard3D({
   // Tracks active pointers by id (multi-touch). 1 active = pan,
   // 2 active = pinch+twist.
   const pointersRef = useRef<Map<number, { x: number; y: number }>>(new Map());
-  const gestureRef = useRef<{ pinchDist: number; twistAngle: number } | null>(null);
+  // Two-finger gesture: anchor the start state (d0, θ0) and run a
+  // winner-take-all activation so pinch and twist don't fight.
+  // mode='undecided' until one axis crosses its threshold from the
+  // anchor; then locks to 'pinch' or 'twist' for the rest of the gesture.
+  const gestureRef = useRef<{
+    startDist: number;
+    startAngle: number;
+    lastDist: number;
+    lastAngle: number;
+    mode: "undecided" | "pinch" | "twist";
+  } | null>(null);
+  const PINCH_THRESHOLD = 0.12; // 12% scale change to activate zoom
+  const TWIST_THRESHOLD = 0.22; // ~12.5° rotation to activate twist
   const movedRef = useRef(false);
   const [zoomTick, setZoomTick] = useState(0); // forces re-render when zoom buttons run
   const ZOOM_MIN = 0.4;
@@ -533,9 +545,14 @@ export default function Yard3D({
     if (pointersRef.current.size === 2) {
       const pts = Array.from(pointersRef.current.values());
       const [a, b] = pts;
+      const d0 = Math.hypot(b.x - a.x, b.y - a.y);
+      const a0 = Math.atan2(b.y - a.y, b.x - a.x);
       gestureRef.current = {
-        pinchDist: Math.hypot(b.x - a.x, b.y - a.y),
-        twistAngle: Math.atan2(b.y - a.y, b.x - a.x),
+        startDist: d0,
+        startAngle: a0,
+        lastDist: d0,
+        lastAngle: a0,
+        mode: "undecided",
       };
     }
   };
@@ -572,26 +589,52 @@ export default function Yard3D({
     }
 
     if (pointersRef.current.size === 2 && gestureRef.current) {
+      const g = gestureRef.current;
       const pts = Array.from(pointersRef.current.values());
       const [a, b] = pts;
       const newDist = Math.hypot(b.x - a.x, b.y - a.y);
       const newAngle = Math.atan2(b.y - a.y, b.x - a.x);
-      const distRatio = newDist / Math.max(1, gestureRef.current.pinchDist);
-      const dAngle = newAngle - gestureRef.current.twistAngle;
-      // pinch out (distRatio > 1) → zoom IN (closer) → smaller zoom value
-      const zoomDelta = 1 / distRatio;
-      const nextZoom = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, s.zoom * zoomDelta));
-      s.zoom = nextZoom;
-      // twist heading around standing axis; small dead-zone (~3°) to
-      // avoid accidental rotation during pinch
-      if (Math.abs(dAngle) > 0.05) {
-        const q = new THREE.Quaternion().setFromAxisAngle(s.standing, -dAngle);
+
+      // Cumulative deltas from the gesture anchor (not last frame) —
+      // this is what lets slow rotations register without per-frame noise.
+      const cumScale = newDist / Math.max(1, g.startDist);
+      let cumTwist = newAngle - g.startAngle;
+      // wrap to [-π, π]
+      while (cumTwist > Math.PI) cumTwist -= 2 * Math.PI;
+      while (cumTwist < -Math.PI) cumTwist += 2 * Math.PI;
+
+      // Winner-take-all activation: whichever axis crosses its
+      // threshold from the anchor first locks the gesture.
+      if (g.mode === "undecided") {
+        const pinchOver = Math.abs(Math.log(cumScale)) > Math.log(1 + PINCH_THRESHOLD);
+        const twistOver = Math.abs(cumTwist) > TWIST_THRESHOLD;
+        if (pinchOver && (!twistOver || Math.abs(Math.log(cumScale)) / Math.log(1 + PINCH_THRESHOLD) >= Math.abs(cumTwist) / TWIST_THRESHOLD)) {
+          g.mode = "pinch";
+          // re-anchor so the activation slack doesn't snap-jump
+          g.lastDist = newDist;
+          g.lastAngle = newAngle;
+        } else if (twistOver) {
+          g.mode = "twist";
+          g.lastDist = newDist;
+          g.lastAngle = newAngle;
+        }
+      }
+
+      if (g.mode === "pinch") {
+        const distRatio = newDist / Math.max(1, g.lastDist);
+        const zoomDelta = 1 / distRatio;
+        s.zoom = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, s.zoom * zoomDelta));
+        setZoomTick((t) => t + 1);
+      } else if (g.mode === "twist") {
+        const dAngle = newAngle - g.lastAngle;
+        const q = new THREE.Quaternion().setFromAxisAngle(s.standing, dAngle);
         s.heading.applyQuaternion(q);
         s.heading.addScaledVector(s.standing, -s.heading.dot(s.standing)).normalize();
       }
-      gestureRef.current = { pinchDist: newDist, twistAngle: newAngle };
+
+      g.lastDist = newDist;
+      g.lastAngle = newAngle;
       movedRef.current = true;
-      setZoomTick((t) => t + 1);
       return;
     }
   };
