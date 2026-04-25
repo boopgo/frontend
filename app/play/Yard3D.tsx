@@ -2,7 +2,7 @@
 
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { ContactShadows } from "@react-three/drei";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import type { Palette, Species } from "./PetCreature";
 
@@ -456,17 +456,27 @@ type OrbitState = {
   dragging: boolean;
 };
 const PLANET_CENTER = new THREE.Vector3(0, PLANET_CY, 0);
-// Initial camera offset from planet center — this is the original
-// (0, 4.8, 5.5) world position translated into planet-center frame.
-const BASE_OFFSET = new THREE.Vector3(0, 4.8 - PLANET_CY, 5.5);
+// Viewer rig in planet-center frame, captured from the original
+// composition (camera at world (0, 4.8, 5.5) looking at (0, 0.2, 0)
+// with world up). Orbit rotates all three vectors together.
+const REST_CAM = new THREE.Vector3(0, 4.8 - PLANET_CY, 5.5);
+const REST_TARGET = new THREE.Vector3(0, 0.2 - PLANET_CY, 0);
+const REST_UP = new THREE.Vector3(0, 1, 0);
+const REST_DIST = Math.hypot(4.8, 5.5); // camera-to-target, for fov
 
-function CameraOrbit({ orbitRef }: { orbitRef: React.MutableRefObject<OrbitState> }) {
+function CameraOrbit({
+  orbitRef,
+  zoom,
+}: {
+  orbitRef: React.MutableRefObject<OrbitState>;
+  zoom: number;
+}) {
   const { camera, size } = useThree();
 
   useEffect(() => {
     if ("fov" in camera) {
       const aspect = size.width / Math.max(1, size.height);
-      const dist = BASE_OFFSET.length();
+      const dist = REST_DIST * zoom;
       const halfW = YARD_W / 2 + 0.4;
       const hFovRad = 2 * Math.atan(halfW / dist);
       const vFovRad = 2 * Math.atan(Math.tan(hFovRad / 2) / aspect);
@@ -474,7 +484,7 @@ function CameraOrbit({ orbitRef }: { orbitRef: React.MutableRefObject<OrbitState
       camera.fov = Math.max(28, Math.min(85, vFovDeg));
       camera.updateProjectionMatrix();
     }
-  }, [camera, size.width, size.height]);
+  }, [camera, size.width, size.height, zoom]);
 
   useFrame((_, dt) => {
     const s = orbitRef.current;
@@ -483,10 +493,16 @@ function CameraOrbit({ orbitRef }: { orbitRef: React.MutableRefObject<OrbitState
       s.quat.premultiply(dq);
       s.speed *= Math.pow(0.04, dt);
     }
-    const offset = BASE_OFFSET.clone().applyQuaternion(s.quat);
-    camera.position.copy(PLANET_CENTER).add(offset);
-    camera.up.copy(offset).normalize();
-    camera.lookAt(PLANET_CENTER);
+    // Rotate the entire rig (cam pos, look-at, up) around planet center.
+    // Zoom scales the camera-out-from-target vector only, so the look-at
+    // point on the surface stays fixed.
+    const target = REST_TARGET.clone().applyQuaternion(s.quat);
+    const camOut = REST_CAM.clone().sub(REST_TARGET).multiplyScalar(zoom).applyQuaternion(s.quat);
+    const up = REST_UP.clone().applyQuaternion(s.quat);
+    camera.position.copy(PLANET_CENTER).add(target).add(camOut);
+    camera.up.copy(up);
+    const lookAt = PLANET_CENTER.clone().add(target);
+    camera.lookAt(lookAt);
   });
   return null;
 }
@@ -505,6 +521,9 @@ export default function Yard3D({
     dragging: false,
   });
   const lastRef = useRef({ x: 0, y: 0, t: 0, moved: false });
+  // zoom = 1 is the default framing. Smaller = closer, larger = farther.
+  const [zoom, setZoom] = useState(1);
+  const ZOOM_STEPS = [0.6, 1, 1.6];
 
   const onPointerDown = (e: React.PointerEvent) => {
     (e.target as Element).setPointerCapture?.(e.pointerId);
@@ -543,7 +562,15 @@ export default function Yard3D({
     orbitRef.current.dragging = false;
   };
 
+  const cycleZoom = (dir: 1 | -1) => {
+    const i = ZOOM_STEPS.indexOf(zoom);
+    const safe = i === -1 ? 1 : i;
+    const next = Math.max(0, Math.min(ZOOM_STEPS.length - 1, safe + dir));
+    setZoom(ZOOM_STEPS[next]);
+  };
+
   return (
+    <div style={{ position: "relative", width: "100%", height: "100%" }}>
     <Canvas
       shadows
       dpr={[1, 2]}
@@ -558,7 +585,7 @@ export default function Yard3D({
     >
       <color attach="background" args={["#b9e0ff"]} />
       <fog attach="fog" args={["#cfe9f7", 14, 26]} />
-      <CameraOrbit orbitRef={orbitRef} />
+      <CameraOrbit orbitRef={orbitRef} zoom={zoom} />
 
       <ambientLight intensity={0.55} />
       <directionalLight
@@ -593,5 +620,60 @@ export default function Yard3D({
       ))}
       <ContactShadows position={[0, 0.01, 0]} opacity={0.35} scale={20} blur={2.4} far={4} />
     </Canvas>
+    <div
+      style={{
+        position: "absolute",
+        top: 12,
+        right: 12,
+        display: "flex",
+        flexDirection: "column",
+        gap: 6,
+        zIndex: 2,
+        pointerEvents: "auto",
+      }}
+    >
+      <button
+        type="button"
+        aria-label="Zoom in"
+        onClick={() => cycleZoom(-1)}
+        style={zoomBtnStyle}
+      >
+        +
+      </button>
+      <button
+        type="button"
+        aria-label="Reset zoom"
+        onClick={() => setZoom(1)}
+        style={{ ...zoomBtnStyle, fontSize: 12 }}
+      >
+        ⟳
+      </button>
+      <button
+        type="button"
+        aria-label="Zoom out"
+        onClick={() => cycleZoom(1)}
+        style={zoomBtnStyle}
+      >
+        −
+      </button>
+    </div>
+    </div>
   );
 }
+
+const zoomBtnStyle: React.CSSProperties = {
+  width: 36,
+  height: 36,
+  borderRadius: 18,
+  border: "none",
+  background: "rgba(255, 255, 255, 0.85)",
+  color: "#2A1A2E",
+  fontSize: 18,
+  fontWeight: 600,
+  cursor: "pointer",
+  boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  WebkitTapHighlightColor: "transparent",
+};
