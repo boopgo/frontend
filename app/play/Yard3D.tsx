@@ -555,7 +555,7 @@ export default function Yard3D({
       const dy = next.y - prev.y;
       if (Math.abs(dx) + Math.abs(dy) > 3) movedRef.current = true;
       const right = new THREE.Vector3().crossVectors(s.heading, s.standing).normalize();
-      const tangent = right.clone().multiplyScalar(dx).addScaledVector(s.heading, dy);
+      const tangent = right.clone().multiplyScalar(-dx).addScaledVector(s.heading, dy);
       const mag = tangent.length();
       if (mag < 1e-5) return;
       tangent.divideScalar(mag);
