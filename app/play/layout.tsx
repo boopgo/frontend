@@ -16,7 +16,10 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     title: "Boop AI",
-    statusBarStyle: "default",
+    // black-translucent makes iOS render the status bar area as transparent,
+    // so our sky-blue page content extends seamlessly under the notch instead
+    // of showing an opaque coral bar where the theme-color sits.
+    statusBarStyle: "black-translucent",
     startupImage: [
       // iPhone 16 Pro Max / 15 Plus / 14 Pro Max
       {
@@ -59,7 +62,10 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#FF9A8B",
+  // Sky-blue matches the yard's sky so any browser chrome (Android Chrome
+  // header, iOS Safari URL bar) tints to the same color the user sees on
+  // the page — no peach/coral seam.
+  themeColor: "#b9e0ff",
   initialScale: 1,
   width: "device-width",
   viewportFit: "cover",
