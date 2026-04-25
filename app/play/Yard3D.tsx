@@ -429,12 +429,16 @@ function Scenery() {
           <meshStandardMaterial color="#7ec878" roughness={1} />
         </mesh>
       </OnPlanet>
-      {/* sun orb */}
-      <mesh position={[10, 9, -14]}>
-        <sphereGeometry args={[1.6, 20, 20]} />
-        <meshStandardMaterial color="#FFE9A8" emissive="#FFB347" emissiveIntensity={0.9} />
-      </mesh>
     </>
+  );
+}
+
+function Sun() {
+  return (
+    <mesh position={[10, 9, -14]}>
+      <sphereGeometry args={[1.6, 20, 20]} />
+      <meshStandardMaterial color="#FFE9A8" emissive="#FFB347" emissiveIntensity={0.9} />
+    </mesh>
   );
 }
 
@@ -473,35 +477,35 @@ function CameraRig() {
 }
 
 /**
- * Rotates the entire planet (ground + props + pets) around Y when the
- * user drags horizontally. Vertical drags tilt the planet slightly so
- * you can peek over the curve (clamped). Inertia carries the spin
- * after release and decays back to rest.
+ * Free-spin the entire planet via accumulated quaternion. Drag in any
+ * direction → surface scrolls that way (rotation axis is perpendicular
+ * to the drag in screen space). Camera stays fixed; you're effectively
+ * walking around the sphere.
  */
+type SpinState = {
+  quat: THREE.Quaternion;
+  axis: THREE.Vector3; // last drag axis (for inertia)
+  speed: number; // angular velocity magnitude (rad/s)
+  dragging: boolean;
+};
 function PlanetSpinner({
-  dragRef,
+  spinRef,
   children,
 }: {
-  dragRef: React.MutableRefObject<{ rotY: number; rotX: number; velY: number; velX: number; dragging: boolean }>;
+  spinRef: React.MutableRefObject<SpinState>;
   children: React.ReactNode;
 }) {
   const groupRef = useRef<THREE.Group>(null);
   useFrame((_, dt) => {
     const g = groupRef.current;
     if (!g) return;
-    const s = dragRef.current;
-    if (!s.dragging) {
-      // inertia + decay back toward rotX = 0
-      s.rotY += s.velY * dt;
-      s.rotX += s.velX * dt;
-      s.velY *= Math.pow(0.02, dt); // friction
-      s.velX *= Math.pow(0.02, dt);
-      s.rotX += (0 - s.rotX) * Math.min(1, dt * 1.5); // ease tilt back
+    const s = spinRef.current;
+    if (!s.dragging && s.speed > 0.0001) {
+      const dq = new THREE.Quaternion().setFromAxisAngle(s.axis, s.speed * dt);
+      s.quat.premultiply(dq);
+      s.speed *= Math.pow(0.04, dt); // friction
     }
-    // clamp tilt
-    s.rotX = Math.max(-0.5, Math.min(0.5, s.rotX));
-    g.rotation.y = s.rotY;
-    g.rotation.x = s.rotX;
+    g.quaternion.copy(s.quat);
   });
   return <group ref={groupRef}>{children}</group>;
 }
@@ -513,32 +517,47 @@ export default function Yard3D({
   pets: Pet3D[];
   onPetClick?: (id: string) => void;
 }) {
-  const dragRef = useRef({ rotY: 0, rotX: 0, velY: 0, velX: 0, dragging: false });
+  const spinRef = useRef<SpinState>({
+    quat: new THREE.Quaternion(),
+    axis: new THREE.Vector3(0, 1, 0),
+    speed: 0,
+    dragging: false,
+  });
   const lastRef = useRef({ x: 0, y: 0, t: 0, moved: false });
 
   const onPointerDown = (e: React.PointerEvent) => {
     (e.target as Element).setPointerCapture?.(e.pointerId);
-    dragRef.current.dragging = true;
-    dragRef.current.velY = 0;
-    dragRef.current.velX = 0;
+    spinRef.current.dragging = true;
+    spinRef.current.speed = 0;
     lastRef.current = { x: e.clientX, y: e.clientY, t: performance.now(), moved: false };
   };
   const onPointerMove = (e: React.PointerEvent) => {
-    if (!dragRef.current.dragging) return;
+    const s = spinRef.current;
+    if (!s.dragging) return;
     const dx = e.clientX - lastRef.current.x;
     const dy = e.clientY - lastRef.current.y;
     if (Math.abs(dx) + Math.abs(dy) > 3) lastRef.current.moved = true;
     const now = performance.now();
     const dt = Math.max(1, now - lastRef.current.t) / 1000;
     const sens = 0.005;
-    dragRef.current.rotY += dx * sens;
-    dragRef.current.rotX += dy * sens * 0.6;
-    dragRef.current.velY = (dx * sens) / dt;
-    dragRef.current.velX = (dy * sens * 0.6) / dt;
+    const angle = Math.hypot(dx, dy) * sens;
+    if (angle > 1e-5) {
+      // axis perpendicular to drag in screen plane: (dy, dx, 0) — drag right
+      // spins around +Y (surface moves right toward you), drag down spins
+      // around +X (surface scrolls down past camera).
+      const axis = new THREE.Vector3(dy, dx, 0).normalize();
+      const dq = new THREE.Quaternion().setFromAxisAngle(axis, angle);
+      // premultiply: rotation is applied in world space (camera frame),
+      // so the surface always tracks the user's thumb regardless of how
+      // the planet has been previously rotated.
+      s.quat.premultiply(dq);
+      s.axis.copy(axis);
+      s.speed = angle / dt;
+    }
     lastRef.current = { x: e.clientX, y: e.clientY, t: now, moved: lastRef.current.moved };
   };
   const onPointerUp = () => {
-    dragRef.current.dragging = false;
+    spinRef.current.dragging = false;
   };
 
   return (
@@ -572,7 +591,9 @@ export default function Yard3D({
       />
       <hemisphereLight args={["#ffe9b8", "#9fd88a", 0.4]} />
 
-      <PlanetSpinner dragRef={dragRef}>
+      <Sun />
+
+      <PlanetSpinner spinRef={spinRef}>
         <Ground />
         <Clovers />
         <GrassField />
