@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "boop — your pet, reimagined",
+  title: "boop, your boop, booped",
   description:
-    "boop is an AI-powered social app built entirely around pets. Scan your pet, meet their digital twin, and turn daily walks into a shared adventure.",
+    "Snap a photo, get your boop — your pet's digital twin, ready to live in your pocket.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

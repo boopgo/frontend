@@ -59,8 +59,8 @@ a{color:inherit}
     border:1px solid rgba(42,26,46,.06);
     font-size:14px;
   }
-  nav .logo{font-family:'Fraunces',serif;font-weight:800;font-size:22px;padding:0 12px 0 8px;display:flex;align-items:center;gap:4px}
-  nav .logo .dot{width:10px;height:10px;border-radius:50%;background:var(--coral);display:inline-block;margin-left:2px;animation:blink 3s infinite}
+  nav .logo{font-family:'Fraunces',serif;font-weight:800;font-size:22px;padding:0 12px 0 8px;display:flex;align-items:center;gap:5px}
+  nav .logo .paw{display:inline-block;flex-shrink:0;transform:translateY(1px)}
   nav a{color:var(--ink);text-decoration:none;padding:8px 12px;border-radius:999px;transition:background .15s}
   nav a:hover{background:rgba(42,26,46,.06)}
   nav .cta{background:var(--ink);color:#fff;padding:8px 16px}
