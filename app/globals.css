@@ -820,3 +820,173 @@ a{color:inherit}
     .why .bignum{font-size:28px}
   }
 }
+
+/* ============================================================
+   INVESTOR MEMO (tight, text-first, equity-research aesthetic)
+   ============================================================ */
+.page-brief{
+  background:#fafaf7;
+  color:#111;
+  min-height:100vh;
+  font-family:-apple-system,BlinkMacSystemFont,"Inter","Segoe UI",
+    "Helvetica Neue",Arial,sans-serif;
+  font-feature-settings:"tnum" 1,"kern" 1;
+  font-size:14px;
+  line-height:1.55;
+}
+.page-brief .brief-masthead{
+  max-width:760px;margin:0 auto;padding:36px 32px 18px;
+  border-bottom:1px solid #111;
+}
+.page-brief .masthead-row{
+  display:flex;align-items:baseline;justify-content:space-between;gap:16px;
+  font-size:11px;letter-spacing:.08em;text-transform:uppercase;
+}
+.page-brief .masthead-mark{font-weight:700}
+.page-brief .masthead-meta{display:flex;gap:6px;color:#555}
+.page-brief .masthead-title{
+  font-size:22px;font-weight:700;letter-spacing:-.005em;
+  margin:18px 0 4px;
+}
+.page-brief .masthead-conf{
+  font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#888;
+}
+.page-brief .brief-layout{
+  max-width:1080px;margin:0 auto;padding:36px 32px 60px;
+  display:grid;grid-template-columns:minmax(0,1fr) 200px;gap:56px;
+  scroll-behavior:smooth;
+}
+.page-brief .brief{
+  min-width:0;
+}
+.page-brief .brief-toc{
+  position:sticky;top:32px;align-self:start;
+  font-size:11px;line-height:1.6;
+  border-left:1px solid #ddd;padding-left:16px;
+}
+.page-brief .brief-toc .toc-label{
+  font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  color:#111;font-size:10px;margin-bottom:10px;
+}
+.page-brief .brief-toc ol{
+  list-style:none;padding:0;margin:0;
+  font-variant-numeric:tabular-nums;
+  counter-reset:none;
+}
+.page-brief .brief-toc li{margin:0 0 6px;padding:0}
+.page-brief .brief-toc a{
+  color:#666;text-decoration:none;display:block;padding:2px 0;
+}
+.page-brief .brief-toc a:hover{color:#111}
+html{scroll-behavior:smooth}
+@media(max-width:900px){
+  .page-brief .brief-layout{
+    grid-template-columns:1fr;gap:0;
+  }
+  .page-brief .brief-toc{display:none}
+}
+.page-brief .brief h1{display:none}
+.page-brief .brief h2{
+  font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  margin:36px 0 14px;padding-bottom:6px;border-bottom:1px solid #ddd;color:#111;
+}
+.page-brief .brief h2:first-child{margin-top:8px}
+.page-brief .brief h4{
+  font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+  color:#555;margin:24px 0 10px;
+}
+.page-brief .brief p{margin:0 0 14px;color:#222}
+.page-brief .brief strong{font-weight:700;color:#000}
+.page-brief .brief sup{font-size:10px;color:#666;margin-left:1px}
+.page-brief .brief hr{
+  border:none;border-top:1px solid #ddd;margin:36px 0 22px;
+}
+.page-brief .brief a{color:#7a1a14;text-decoration:none;border-bottom:1px solid #d6c2c0}
+.page-brief .brief a:hover{border-bottom-color:#7a1a14}
+
+.page-brief .brief table{
+  width:100%;border-collapse:collapse;margin:8px 0 20px;
+  font-variant-numeric:tabular-nums;font-size:13px;
+}
+.page-brief .brief th,
+.page-brief .brief td{
+  text-align:left;padding:7px 10px;border-bottom:1px solid #eee;
+}
+.page-brief .brief th{
+  font-weight:600;font-size:10px;letter-spacing:.08em;text-transform:uppercase;
+  color:#666;border-bottom:1px solid #111;
+}
+.page-brief .brief td:last-child,
+.page-brief .brief th:last-child{text-align:right;font-variant-numeric:tabular-nums}
+.page-brief .brief tbody tr:last-child td{
+  border-bottom:none;border-top:1px solid #111;font-weight:700;color:#000;
+}
+.page-brief .brief ol,
+.page-brief .brief ul{
+  font-size:12px;line-height:1.55;padding-left:20px;color:#444;
+}
+.page-brief .brief ol li,
+.page-brief .brief ul li{margin-bottom:6px}
+.page-brief .brief ol li a,
+.page-brief .brief ul li a{word-break:break-all}
+
+.page-brief .brief .comps{
+  margin:8px 0 24px;border-top:1px solid #111;
+}
+.page-brief .brief .comps details{
+  border-bottom:1px solid #ddd;
+}
+.page-brief .brief .comps summary{
+  display:flex;align-items:baseline;justify-content:space-between;gap:16px;
+  list-style:none;cursor:pointer;
+  padding:12px 0 12px 18px;position:relative;
+  font-variant-numeric:tabular-nums;
+}
+.page-brief .brief .comps summary::-webkit-details-marker{display:none}
+.page-brief .brief .comps summary::before{
+  content:"+";position:absolute;left:0;top:11px;
+  font-size:14px;font-weight:400;color:#888;width:14px;text-align:center;
+}
+.page-brief .brief .comps details[open] summary::before{content:"−"}
+.page-brief .brief .comps .comp-label{
+  font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#111;
+}
+.page-brief .brief .comps .comp-stat{
+  font-size:12px;color:#555;text-align:right;
+}
+.page-brief .brief .comps details[open] summary{border-bottom:1px dashed #eee}
+.page-brief .brief .comps details > p{
+  margin:12px 0 16px;padding-left:18px;font-size:13px;color:#333;line-height:1.6;
+}
+.page-brief .brief .draft{
+  display:inline-block;font-size:10px;letter-spacing:.08em;text-transform:uppercase;
+  color:#a06b00;background:#fdf3d8;border:1px solid #ead7a3;
+  padding:1px 6px;margin-right:6px;border-radius:2px;font-weight:600;
+}
+.page-brief .brief td .yes{
+  color:#1f7a4f;font-weight:700;font-size:14px;
+}
+.page-brief .brief td .no{
+  color:#cfcfcf;font-weight:400;font-size:14px;
+}
+.page-brief .brief td .mid{
+  color:#a87010;font-weight:600;font-size:10px;letter-spacing:.04em;
+  text-transform:uppercase;
+}
+
+.page-brief .brief-foot{
+  max-width:760px;margin:0 auto;padding:18px 32px 48px;
+  display:flex;justify-content:space-between;gap:16px;
+  font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#888;
+  border-top:1px solid #ddd;
+}
+.page-brief .brief-foot a{color:inherit;text-decoration:none}
+.page-brief .brief-foot a:hover{color:#111}
+
+@media(max-width:640px){
+  .page-brief{font-size:14px}
+  .page-brief .brief-masthead{padding:24px 22px 14px}
+  .page-brief .brief{padding:24px 22px 40px}
+  .page-brief .brief-foot{flex-direction:column;gap:6px;padding:18px 22px 32px}
+  .page-brief .masthead-title{font-size:20px}
+}
