@@ -71,6 +71,22 @@ const SPECIES_EMOJI: Record<Species, string> = {
 const SAMPLE_NAMES = ["Mochi", "Biscuit", "Pepper", "Olive", "Waffle", "Clover"];
 const pickName = (i: number) => SAMPLE_NAMES[i % SAMPLE_NAMES.length];
 
+// Each screen owns the color that paints behind the iOS notch / browser chrome.
+// Drives both <meta name="theme-color"> (Android Chrome top bar) and
+// html/body background (iOS PWA safe-area + overscroll).
+const SCREEN_THEMES: Record<Step, string> = {
+  splash: "#FFF0DB",
+  welcome: "#b9e0ff",
+  capture: "#1a0f1e",
+  generating: "#FFF0DB",
+  reveal: "#b9e0ff",
+  pronouns: "#b9e0ff",
+  birthday: "#b9e0ff",
+  breed: "#b9e0ff",
+  personality: "#b9e0ff",
+  home: "#b9e0ff",
+};
+
 export default function DemoPage() {
   const [step, setStep] = useState<Step>("splash");
   const [species, setSpecies] = useState<Species>("dog");
@@ -83,6 +99,16 @@ export default function DemoPage() {
   const [personality, setPersonality] = useState<string[]>([]);
   const [pets, setPets] = useState<Pet[]>([]);
   const [toast, setToast] = useState<string | null>(null);
+
+  // Sync top-of-screen color (theme-color + safe-area bg) to current step.
+  useEffect(() => {
+    const color = SCREEN_THEMES[step];
+    document
+      .querySelector('meta[name="theme-color"]')
+      ?.setAttribute("content", color);
+    document.documentElement.style.background = color;
+    document.body.style.background = color;
+  }, [step]);
 
   // auto-advance splash
   useEffect(() => {
@@ -322,7 +348,7 @@ function SplashScreen() {
           <ellipse cx="51" cy="26" rx="5.5" ry="6.5" fill="#FF9A8B" />
         </svg>
       </div>
-      <div className="tag">meet your pet, booped</div>
+      <div className="tag">Boop your Boop</div>
     </div>
   );
 }

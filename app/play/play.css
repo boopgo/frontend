@@ -2,12 +2,11 @@
    DEMO — mobile mockup for designer/dev reference
    ============================================================ */
 
-/* Set the html/body background to sky-blue on the play surface so any
-   safe-area / notch area shows seamless sky instead of peach when the
-   PWA is launched in standalone mode. dvh = dynamic viewport height,
-   the modern unit that correctly accounts for browser chrome / status
-   bar across iOS + Android. */
-html, body { background: #b9e0ff; }
+/* html/body background is owned by page.tsx — see SCREEN_THEMES.
+   It's updated per step so the iOS safe-area / notch and overscroll
+   region always match the current screen's top color. We only set a
+   neutral fallback here for the brief moment before hydration. */
+html, body { background: #FFF0DB; }
 
 .demo-stage {
   min-height: 100dvh;
@@ -55,16 +54,17 @@ html, body { background: #b9e0ff; }
     overflow: hidden;
     overscroll-behavior: none;
   }
-  /* Stage is sky-blue too so any uncovered area (safe-area, notch
-     padding, rubber-band overscroll) looks like seamless sky. */
-  .demo-stage { padding: 0; background: #b9e0ff; min-height: 100dvh; }
+  /* Stage and phone are transparent on mobile so the html/body bg
+     (driven per-step by SCREEN_THEMES in page.tsx) shows through any
+     uncovered area: safe-area, notch padding, rubber-band overscroll. */
+  .demo-stage { padding: 0; background: transparent; min-height: 100dvh; }
   .phone {
     width: 100vw;
     height: 100dvh;
     max-height: none;
     border-radius: 0;
     box-shadow: none;
-    background: #b9e0ff;
+    background: transparent;
   }
   .phone::before { display: none; }
 }
@@ -143,7 +143,7 @@ html, body { background: #b9e0ff; }
   justify-content: center;
   background:
     radial-gradient(600px 400px at 50% 30%, var(--peach), transparent 70%),
-    linear-gradient(180deg, var(--cream), #ffe9d1);
+    linear-gradient(180deg, #FFF0DB 0%, #ffe9d1 100%);
   padding: 40px;
   text-align: center;
 }

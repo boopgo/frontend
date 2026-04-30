@@ -62,10 +62,10 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  // Sky-blue matches the yard's sky so any browser chrome (Android Chrome
-  // header, iOS Safari URL bar) tints to the same color the user sees on
-  // the page — no peach/coral seam.
-  themeColor: "#b9e0ff",
+  // Initial theme-color matches the splash screen (the first step rendered).
+  // page.tsx then updates <meta name="theme-color"> per step via SCREEN_THEMES,
+  // so browser chrome / iOS safe-area always tracks the current screen.
+  themeColor: "#FFF0DB",
   initialScale: 1,
   width: "device-width",
   viewportFit: "cover",
