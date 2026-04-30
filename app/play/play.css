@@ -77,9 +77,12 @@ html, body { background: #FFF0DB; }
   overflow: hidden;
 }
 
-/* status bar spacer */
+/* Status-bar spacer: reserves room for the iOS notch / Android status
+   bar in standalone PWA mode. env(safe-area-inset-top) gives the exact
+   device value (≈47px on iPhone 14, ≈59px on Pro Max). Falls back to
+   48px in browser tabs / desktop where the inset is 0. */
 .status-bar {
-  height: 48px;
+  height: max(env(safe-area-inset-top, 0px), 48px);
   flex-shrink: 0;
 }
 
@@ -207,7 +210,8 @@ html, body { background: #FFF0DB; }
 }
 .welcome-sheet {
   flex: 1;
-  padding: 28px 28px 32px;
+  /* Bottom padding clears the iOS home indicator in standalone PWA */
+  padding: 28px 28px max(32px, calc(16px + env(safe-area-inset-bottom, 0px)));
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
@@ -308,7 +312,7 @@ html, body { background: #FFF0DB; }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 32px;
+  padding: 0 32px env(safe-area-inset-bottom, 0px);
   flex-shrink: 0;
 }
 .capture .shutter {

@@ -787,8 +787,10 @@ export default function Yard3D({
     <div
       style={{
         position: "absolute",
-        top: 12,
-        right: 12,
+        // Push below the iOS notch / Android status-bar in standalone PWA.
+        // Falls back to 12 in browser tabs where safe-area-inset-top is 0.
+        top: "calc(12px + env(safe-area-inset-top, 0px))",
+        right: "calc(12px + env(safe-area-inset-right, 0px))",
         display: "flex",
         flexDirection: "column",
         gap: 6,
