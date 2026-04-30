@@ -14,8 +14,12 @@ export function GET() {
     scope: "/",
     display: "standalone",
     orientation: "portrait",
-    background_color: "#FFD6A5",
-    theme_color: "#FF9A8B",
+    // Both must match the splash screen's top color (#FFF0DB) so PWA
+    // cold-launch on Android shows the splash color, not coral, before
+    // our JS / CSS gets a chance to paint. theme_color also seeds the
+    // system chrome tint until page.tsx's per-step useEffect kicks in.
+    background_color: "#FFF0DB",
+    theme_color: "#FFF0DB",
     icons: [
       { src: "/icon.svg", sizes: "any", type: "image/svg+xml" },
       { src: "/icon-192.png", sizes: "192x192", type: "image/png" },
