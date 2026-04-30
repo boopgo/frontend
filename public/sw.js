@@ -10,7 +10,7 @@
  * Scope is set by the registration call in app/play/layout.tsx — this
  * worker only takes effect on play.boopai.app.
  */
-const VERSION = "boop-play-v1";
+const VERSION = "boop-play-v2";
 const RUNTIME = `${VERSION}-runtime`;
 
 self.addEventListener("install", (event) => {

@@ -49,20 +49,24 @@ html, body { background: #FFF0DB; }
   z-index: 30;
 }
 @media (max-width: 500px) {
+  /* Use 100lvh (largest viewport height) on mobile. In iOS standalone
+     PWA, `dvh` excludes the home-indicator safe-area, leaving a strip
+     of html bg visible below our content. `lvh` is the maximum viewport
+     and always includes safe-areas, so the page actually fills the
+     screen edge-to-edge. */
   html, body {
-    height: 100dvh;
+    height: 100lvh;
     overflow: hidden;
     overscroll-behavior: none;
   }
-  /* Stage is anchored to the full visual viewport via position:fixed +
-     inset:0. This is more reliable than `height: 100dvh` in iOS
-     standalone PWA mode, where dvh can return less than the full
-     screen and leave a strip of html bg visible at the bottom (the
-     home-indicator region). With fixed/inset, the stage always covers
-     edge-to-edge regardless of how the browser computes dvh. */
   .demo-stage {
     position: fixed;
-    inset: 0;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100lvh;
     padding: 0;
     background: transparent;
     min-height: 0;
