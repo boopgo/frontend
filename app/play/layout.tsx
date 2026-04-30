@@ -74,6 +74,10 @@ export const viewport: Viewport = {
 export default function PlayLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
+      {/* Paint the splash color into html/body BEFORE play.css loads, so the
+          very first frame on cold load is already #FFF0DB instead of the
+          browser's default white. page.tsx then takes over per-step. */}
+      <style>{`html,body{background:#FFF0DB}`}</style>
       {children}
       <RegisterSW />
       <InstallPrompt />
