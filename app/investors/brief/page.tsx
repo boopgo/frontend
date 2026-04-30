@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { marked } from "marked";
+import { InvestorNav } from "../Nav";
+import { BriefToc } from "./Toc";
 
 export const metadata: Metadata = {
   title: "boop · investor memo",
-  description: "Investor memo — Boop, Inc.",
-  robots: "noindex",
+  description: "Investor memo — Boop Go, Inc.",
+  robots: "noindex, nofollow, noarchive",
 };
 
 function slugify(text: string): string {
@@ -41,9 +43,10 @@ export default function InvestorBrief() {
 
   return (
     <div className="page-brief">
+      <InvestorNav />
       <header className="brief-masthead">
         <div className="masthead-row">
-          <div className="masthead-mark">Boop, Inc.</div>
+          <div className="masthead-mark">Boop Go, Inc.</div>
           <div className="masthead-meta">
             <span>Consumer Internet</span>
             <span>·</span>
@@ -56,22 +59,13 @@ export default function InvestorBrief() {
       </header>
       <div className="brief-layout">
         <article className="brief" dangerouslySetInnerHTML={{ __html: html }} />
-        <aside className="brief-toc">
-          <div className="toc-label">Contents</div>
-          <ol>
-            {toc.map((item) => (
-              <li key={item.slug}>
-                <a href={`#${item.slug}`}>{item.text}</a>
-              </li>
-            ))}
-          </ol>
-        </aside>
+        <BriefToc items={toc} />
       </div>
       <footer className="brief-foot">
-        <span>Boop, Inc.</span>
+        <span>Boop Go, Inc.</span>
         <span>investors@boopai.app</span>
         <span>
-          <a href="/investors">Visual brief →</a>
+          <a href="/investors">Overview →</a>
         </span>
       </footer>
     </div>

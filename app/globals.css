@@ -626,22 +626,6 @@ a{color:inherit}
 .page-investors{
   .wrap{max-width:1080px;margin:0 auto;padding:0 28px}
 
-  /* nav */
-  nav{
-    position:sticky;top:0;z-index:40;background:rgba(255,246,236,.9);backdrop-filter:blur(14px);
-    border-bottom:1px solid var(--line);padding:14px 0;
-  }
-  nav .wrap{display:flex;align-items:center;gap:20px}
-  nav .logo{font-family:'Fraunces',serif;font-weight:800;font-size:24px;text-decoration:none;display:inline-flex;align-items:center;gap:5px}
-  nav .logo .paw{display:inline-block;flex-shrink:0;transform:translateY(1px)}
-  nav .tag{font-size:12px;letter-spacing:.14em;text-transform:uppercase;background:var(--ink);color:#fff;padding:4px 10px;border-radius:999px;font-weight:800}
-  nav .spacer{flex:1}
-  nav a.link{text-decoration:none;font-size:14px;color:var(--sub)}
-  nav a.cta{
-    text-decoration:none;background:var(--ink);color:#fff;
-    padding:10px 18px;border-radius:999px;font-weight:800;font-size:14px;
-  }
-
   section{padding:90px 0;border-bottom:1px solid var(--line);position:relative}
   section:last-of-type{border-bottom:none}
   .slide-num{
@@ -822,10 +806,67 @@ a{color:inherit}
 }
 
 /* ============================================================
+   SHARED — investor nav bar (mounted on /investors and
+   /investors/brief). Same chrome on both pages; the body
+   background of each page stays its own.
+   ============================================================ */
+.boop-nav{
+  position:sticky;top:0;z-index:40;
+  background:rgba(255,246,236,.9);
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+  border-bottom:1px solid rgba(0,0,0,.08);
+  padding:14px 0;
+  font-family:-apple-system,BlinkMacSystemFont,"Inter","Segoe UI","Helvetica Neue",Arial,sans-serif;
+  font-size:14px;line-height:1.4;
+}
+.boop-nav-inner{
+  max-width:1080px;margin:0 auto;padding:0 28px;
+  display:flex;align-items:center;gap:20px;
+}
+.boop-nav-logo{
+  font-family:'Fraunces',serif;font-weight:800;font-size:24px;
+  text-decoration:none;color:#111;
+  display:inline-flex;align-items:center;gap:5px;
+}
+.boop-nav-paw{display:inline-block;flex-shrink:0;transform:translateY(1px)}
+.boop-nav-tag{
+  font-size:11px;letter-spacing:.08em;text-transform:uppercase;
+  background:#111;color:#fff;
+  padding:5px 14px;border-radius:999px;font-weight:700;
+  display:inline-flex;align-items:center;
+}
+.boop-nav-spacer{flex:1}
+
+/* ============================================================
+   SHARED — overview/memo tab switcher (mounted top-right on both
+   /investors and /investors/brief).
+   ============================================================ */
+.ib-tabs-wrap{display:inline-flex;align-items:center}
+.ib-tabs{
+  display:inline-flex;gap:2px;padding:3px;
+  background:rgba(0,0,0,.06);
+  border:1px solid rgba(0,0,0,.08);
+  border-radius:999px;
+  font-family:-apple-system,BlinkMacSystemFont,"Inter","Segoe UI","Helvetica Neue",Arial,sans-serif;
+  font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;
+}
+.ib-tab{
+  display:inline-block;padding:5px 14px;border-radius:999px;
+  text-decoration:none;color:#666;
+  transition:background-color .15s ease,color .15s ease;
+}
+.ib-tab:hover{color:#111}
+.ib-tab.is-active{
+  background:#fff;color:#111;
+  box-shadow:0 1px 2px rgba(0,0,0,.08);
+}
+
+/* ============================================================
    INVESTOR MEMO (tight, text-first, equity-research aesthetic)
    ============================================================ */
 .page-brief{
-  background:#fafaf7;
+  background:var(--cream);
   color:#111;
   min-height:100vh;
   font-family:-apple-system,BlinkMacSystemFont,"Inter","Segoe UI",
@@ -835,7 +876,7 @@ a{color:inherit}
   line-height:1.55;
 }
 .page-brief .brief-masthead{
-  max-width:760px;margin:0 auto;padding:36px 32px 18px;
+  max-width:1080px;margin:0 auto;padding:48px 32px 22px;
   border-bottom:1px solid #111;
 }
 .page-brief .masthead-row{
@@ -860,7 +901,7 @@ a{color:inherit}
   min-width:0;
 }
 .page-brief .brief-toc{
-  position:sticky;top:32px;align-self:start;
+  position:sticky;top:84px;align-self:start;
   font-size:11px;line-height:1.6;
   border-left:1px solid #ddd;padding-left:16px;
 }
@@ -875,9 +916,11 @@ a{color:inherit}
 }
 .page-brief .brief-toc li{margin:0 0 6px;padding:0}
 .page-brief .brief-toc a{
-  color:#666;text-decoration:none;display:block;padding:2px 0;
+  color:#999;text-decoration:none;display:block;padding:2px 0;
+  transition:color .2s ease;
 }
 .page-brief .brief-toc a:hover{color:#111}
+.page-brief .brief-toc a.is-active{color:#111;font-weight:600}
 html{scroll-behavior:smooth}
 @media(max-width:900px){
   .page-brief .brief-layout{
@@ -887,10 +930,15 @@ html{scroll-behavior:smooth}
 }
 .page-brief .brief h1{display:none}
 .page-brief .brief h2{
-  font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
-  margin:36px 0 14px;padding-bottom:6px;border-bottom:1px solid #ddd;color:#111;
+  font-size:22px;font-weight:700;letter-spacing:-.005em;
+  margin:72px 0 6px;padding-top:22px;border-top:1px solid #111;color:#111;
 }
-.page-brief .brief h2:first-child{margin-top:8px}
+.page-brief .brief h2:first-child{margin-top:8px;border-top:none;padding-top:0}
+.page-brief .brief h2 + p.lede{
+  font-size:14px;line-height:1.55;color:#666;
+  margin:0 0 28px;font-style:italic;
+  max-width:62ch;
+}
 .page-brief .brief h4{
   font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
   color:#555;margin:24px 0 10px;

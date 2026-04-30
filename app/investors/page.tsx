@@ -1,36 +1,16 @@
 import type { Metadata } from "next";
+import { InvestorNav } from "./Nav";
 
 export const metadata: Metadata = {
-  title: "boop · investor brief",
-  description: "boop is the AI-native social app for pets. Seed round open.",
-  robots: "noindex",
+  title: "boop · investor memo",
+  description: "boop is the AI-native app for pets. Seed round open.",
+  robots: "noindex, nofollow, noarchive",
 };
 
 export default function Investors() {
   return (
     <div className="page-investors">
-      <nav>
-        <div className="wrap">
-          <a className="logo" href="/">
-            boop
-            <svg className="paw" width="18" height="18" viewBox="0 0 64 64" aria-hidden="true">
-              <path d="M32 26 Q22 26 17 33 Q11 42 16 51 Q22 58 32 58 Q42 58 48 51 Q53 42 47 33 Q42 26 32 26 Z" fill="#FF9A8B" />
-              <ellipse cx="13" cy="26" rx="5.5" ry="6.5" fill="#FF9A8B" />
-              <ellipse cx="24" cy="13" rx="6"   ry="7"   fill="#FF9A8B" />
-              <ellipse cx="40" cy="13" rx="6"   ry="7"   fill="#FF9A8B" />
-              <ellipse cx="51" cy="26" rx="5.5" ry="6.5" fill="#FF9A8B" />
-            </svg>
-          </a>
-          <span className="tag">Investor brief</span>
-          <span className="spacer"></span>
-          <a className="link" href="#ask">
-            The ask
-          </a>
-          <a className="cta" href="#contact">
-            Book a call
-          </a>
-        </div>
-      </nav>
+      <InvestorNav />
 
       {/* 1. HOOK */}
       <section className="hook">
@@ -39,13 +19,13 @@ export default function Investors() {
           <h1>
             The AI-native
             <br />
-            social app, built
+            app, built
             <br />
             <em>for pets.</em>
           </h1>
           <p className="lede">
             Scan your pet with AI → get a living digital companion. Turn daily walks into a game. Shop outfits
-            they&apos;ll actually wear. All inside the first social app where the feed is pet-first and drama-free.
+            they&apos;ll actually wear. All inside one daily-use app where the feed is pet-first and drama-free.
           </p>
           <div className="meta">
             <span className="pill dark">iOS · launching summer 2026</span>
@@ -191,31 +171,51 @@ export default function Investors() {
         <div className="wrap">
           <span className="slide-num">06 · Business model</span>
           <h2>
-            Three revenue lines. <em>One daily app.</em>
+            Five revenue layers. <em>One daily app.</em>
           </h2>
+          <p className="dek">
+            $26 blended ARPU year-3, $58 at saturation. Each layer anchored to a public comp; none invented. Full stack
+            with GM%, ARPU math, and per-layer comps in the memo.
+          </p>
           <div className="revenue-grid">
             <div className="rev">
-              <div className="label">Primary · commerce</div>
-              <h3>Outfit → product take rate</h3>
+              <div className="label">v1 · Layer 1</div>
+              <h3>In-app digital purchases</h3>
               <p>
-                Every outfit on a digital pet maps to a real purchasable product. Target 15–25% affiliate take rate
-                across 40+ indie brand partners at launch.
+                Cosmetic outfits, walk-loop power-ups, and AI-generation credits on the digital companion. Comp:
+                Pokémon GO $545M IAP in 2024 across ~115M MAU. ~70% GM after Apple&apos;s cut.
               </p>
             </div>
             <div className="rev">
-              <div className="label">Secondary · subscription</div>
-              <h3>boop+ premium tier</h3>
+              <div className="label">v1 · Layer 2</div>
+              <h3>Affiliate commerce</h3>
               <p>
-                Advanced AI (multiple pets, custom outfits, shareable reels, walk analytics). Target $4.99/mo. Industry
-                benchmark: 3–7% freemium conversion.
+                Every digital outfit maps to a real purchasable SKU. 15–25% affiliate take rate across indie brand
+                partners. Comp: Etsy, LTK. ~95% GM.
               </p>
             </div>
             <div className="rev">
-              <div className="label">Later · data &amp; ads</div>
-              <h3>Pet-brand partnerships</h3>
+              <div className="label">Y2+ · Layer 3</div>
+              <h3>Private label &amp; custom merch</h3>
               <p>
-                Anonymized cohort insights for pet brands (breed trends, outfit preferences, walk patterns). Premium
-                placement in the outfits marketplace. Zero intrusive ads in the feed — ever.
+                Boop-branded apparel and custom-printed merch featuring the user&apos;s own dog. Comp: BarkBox, Crown
+                &amp; Paw. ~40% GM.
+              </p>
+            </div>
+            <div className="rev">
+              <div className="label">Y2+ · Layer 4</div>
+              <h3>Local merchant network</h3>
+              <p>
+                Paid map placement and lead-gen for vets, groomers, trainers, dog parks. Comp: Yelp&apos;s ~530K paying
+                business locations. ~85% GM.
+              </p>
+            </div>
+            <div className="rev">
+              <div className="label">Y3+ · Layer 5</div>
+              <h3>National brand partnerships</h3>
+              <p>
+                Sponsored outfit drops co-branded with national brands; anonymized cohort licensing of breed × geo ×
+                walk data. Comp: Pinterest. ~85% GM.
               </p>
             </div>
           </div>
@@ -231,20 +231,20 @@ export default function Investors() {
           </h2>
           <div className="stat-grid">
             <div className="stat">
-              <b>$150B</b>
-              <span>TAM · global pet economy, growing 6% YoY</span>
+              <b>$158B</b>
+              <span>US pet industry, 2025 actuals (APPA), growing 3.7% YoY</span>
             </div>
             <div className="stat">
-              <b>$40B</b>
-              <span>SAM · US pet spend in digitally-native categories</span>
+              <b>$428</b>
+              <span>Discretionary spend per dog household per year — the slice Boop monetizes</span>
             </div>
             <div className="stat">
-              <b>$2B</b>
-              <span>SOM · Gen Z + Millennial US pet parents, 3-year capture</span>
+              <b>68M</b>
+              <span>US dog-owning households — the seed universe</span>
             </div>
             <div className="stat">
-              <b>90M</b>
-              <span>US households with at least one pet</span>
+              <b>$80M</b>
+              <span>Year-3 ARR floor at 15% addressable penetration; $130M stretch, $1.18B saturation</span>
             </div>
           </div>
         </div>
@@ -365,43 +365,32 @@ export default function Investors() {
             10 · The ask
           </span>
           <h2>
-            Raising <em>[$X]M</em> seed.
+            Raising <em>$1M</em> seed.
           </h2>
           <p className="dek">
-            [One sentence on the round terms — lead interest, target close, SAFE vs. priced.]
+            SAFE · $10M post-money cap · ~24 months runway · reserve held for validated double-down.
           </p>
           <div className="ask-grid">
             <div className="ask-box">
               <div className="label">Round</div>
-              <b>$[X]M</b>
-              <span>Seed · [SAFE / priced]</span>
+              <b>$1M</b>
+              <span>Seed · SAFE · $10M cap</span>
             </div>
             <div className="ask-box">
               <div className="label">Runway</div>
-              <b>[X] mo</b>
-              <span>Through launch + 6 mo post-launch</span>
+              <b>~24 mo</b>
+              <span>Through iOS launch + 12 mo of v1 data</span>
             </div>
             <div className="ask-box">
               <div className="label">Milestones</div>
               <b>iOS launch</b>
-              <span>10k DAU, 3 brand partners live</span>
+              <span>v1 monetization live, baseline ARPU captured</span>
             </div>
             <div className="ask-box">
               <div className="label">Team hires</div>
-              <b>[X]</b>
-              <span>ML engineer, iOS, BD</span>
+              <b>2</b>
+              <span>Lead engineer + deferred GTM</span>
             </div>
-          </div>
-          <div
-            className="placeholder"
-            style={{
-              background: "rgba(255,255,255,.04)",
-              borderColor: "rgba(255,255,255,.2)",
-              color: "#b8a5bc",
-            }}
-          >
-            <b style={{ color: "#fff" }}>Fill in [X] placeholders with real numbers when you lock the round.</b>
-            Common structure: $1–2M on a $8–15M post cap SAFE for pre-product consumer social.
           </div>
         </div>
       </section>
