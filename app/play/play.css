@@ -54,13 +54,22 @@ html, body { background: #FFF0DB; }
     overflow: hidden;
     overscroll-behavior: none;
   }
-  /* Stage and phone are transparent on mobile so the html/body bg
-     (driven per-step by SCREEN_THEMES in page.tsx) shows through any
-     uncovered area: safe-area, notch padding, rubber-band overscroll. */
-  .demo-stage { padding: 0; background: transparent; min-height: 100dvh; }
+  /* Stage is anchored to the full visual viewport via position:fixed +
+     inset:0. This is more reliable than `height: 100dvh` in iOS
+     standalone PWA mode, where dvh can return less than the full
+     screen and leave a strip of html bg visible at the bottom (the
+     home-indicator region). With fixed/inset, the stage always covers
+     edge-to-edge regardless of how the browser computes dvh. */
+  .demo-stage {
+    position: fixed;
+    inset: 0;
+    padding: 0;
+    background: transparent;
+    min-height: 0;
+  }
   .phone {
-    width: 100vw;
-    height: 100dvh;
+    width: 100%;
+    height: 100%;
     max-height: none;
     border-radius: 0;
     box-shadow: none;
