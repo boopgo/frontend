@@ -141,9 +141,14 @@ html, body { background: #FFF0DB; }
 .splash {
   align-items: center;
   justify-content: center;
+  /* Radial peach is pushed below the top edge (center at 70%, radius 350px)
+     so the topmost band is purely the linear gradient — a constant #FFF0DB
+     that exactly matches the safe-area / theme-color. Without this, the
+     radial bled into the top with ~16% peach alpha and varied horizontally,
+     so no single hex could match the bezel cleanly. */
   background:
-    radial-gradient(600px 400px at 50% 30%, var(--peach), transparent 70%),
-    linear-gradient(180deg, #FFF0DB 0%, #ffe9d1 100%);
+    radial-gradient(550px 350px at 50% 70%, var(--peach), transparent 70%),
+    linear-gradient(180deg, #FFF0DB 0%, #FFF0DB 25%, #ffe9d1 100%);
   padding: 40px;
   text-align: center;
 }

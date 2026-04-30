@@ -530,18 +530,83 @@ export default function Yard3D({
   const movedRef = useRef(false);
   const [zoomTick, setZoomTick] = useState(0); // forces re-render when zoom buttons run
   const ZOOM_MIN = 0.4;
-  const ZOOM_MAX = 2.2;
-  const ZOOM_STEPS = [0.6, 1, 1.6];
+  const ZOOM_MAX = 3.6;
+  const ZOOM_STEPS = [0.6, 1, 1.6, 2.6];
 
   const setZoom = (z: number) => {
     stateRef.current.zoom = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, z));
     setZoomTick((t) => t + 1);
   };
 
+  // ── one-finger spin momentum ────────────────────────────────────────────
+  // Track per-frame drag velocity in screen px/ms, then on pointer-up keep
+  // applying that velocity with exponential decay until it falls below a
+  // small threshold. Cancelled if the user touches again or starts pinching.
+  const velocityRef = useRef<{ vx: number; vy: number; t: number }>({ vx: 0, vy: 0, t: 0 });
+  const momentumRafRef = useRef<number | null>(null);
+
+  // Apply a single one-finger pan step (dx, dy in screen px). Used by both
+  // the live drag handler and the post-release momentum loop.
+  const applyPan = (dx: number, dy: number) => {
+    const s = stateRef.current;
+    const right = new THREE.Vector3().crossVectors(s.heading, s.standing).normalize();
+    const tangent = right.clone().multiplyScalar(-dx).addScaledVector(s.heading, dy);
+    const mag = tangent.length();
+    if (mag < 1e-5) return;
+    tangent.divideScalar(mag);
+    const sens = 0.006 * s.zoom;
+    const angle = (mag * sens) / PLANET_R;
+    const axis = new THREE.Vector3().crossVectors(s.standing, tangent).normalize();
+    if (axis.lengthSq() < 1e-8) return;
+    const q = new THREE.Quaternion().setFromAxisAngle(axis, angle);
+    s.standing.applyQuaternion(q).normalize();
+    s.heading.applyQuaternion(q);
+    s.heading.addScaledVector(s.standing, -s.heading.dot(s.standing)).normalize();
+  };
+
+  const stopMomentum = () => {
+    if (momentumRafRef.current != null) {
+      cancelAnimationFrame(momentumRafRef.current);
+      momentumRafRef.current = null;
+    }
+    velocityRef.current.vx = 0;
+    velocityRef.current.vy = 0;
+  };
+
+  const startMomentum = () => {
+    if (momentumRafRef.current != null) cancelAnimationFrame(momentumRafRef.current);
+    let last = performance.now();
+    const tick = (now: number) => {
+      const v = velocityRef.current;
+      const dt = Math.min(50, now - last);
+      last = now;
+      // exponential decay: ~0.93 per 16ms frame; framerate-independent form
+      const decay = Math.exp(-dt / 220);
+      v.vx *= decay;
+      v.vy *= decay;
+      const speed = Math.hypot(v.vx, v.vy);
+      if (speed < 0.02) {
+        momentumRafRef.current = null;
+        return;
+      }
+      applyPan(v.vx * dt, v.vy * dt);
+      momentumRafRef.current = requestAnimationFrame(tick);
+    };
+    momentumRafRef.current = requestAnimationFrame(tick);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (momentumRafRef.current != null) cancelAnimationFrame(momentumRafRef.current);
+    };
+  }, []);
+
   const onPointerDown = (e: React.PointerEvent) => {
+    stopMomentum();
     (e.target as Element).setPointerCapture?.(e.pointerId);
     pointersRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
     movedRef.current = false;
+    velocityRef.current = { vx: 0, vy: 0, t: performance.now() };
     if (pointersRef.current.size === 2) {
       const pts = Array.from(pointersRef.current.values());
       const [a, b] = pts;
@@ -571,20 +636,16 @@ export default function Yard3D({
       const dx = next.x - prev.x;
       const dy = next.y - prev.y;
       if (Math.abs(dx) + Math.abs(dy) > 3) movedRef.current = true;
-      const right = new THREE.Vector3().crossVectors(s.heading, s.standing).normalize();
-      const tangent = right.clone().multiplyScalar(-dx).addScaledVector(s.heading, dy);
-      const mag = tangent.length();
-      if (mag < 1e-5) return;
-      tangent.divideScalar(mag);
-      const sens = 0.006 * s.zoom; // px → world arc; closer zoom = finer steps
-      const angle = (mag * sens) / PLANET_R;
-      const axis = new THREE.Vector3().crossVectors(s.standing, tangent).normalize();
-      if (axis.lengthSq() < 1e-8) return;
-      const q = new THREE.Quaternion().setFromAxisAngle(axis, angle);
-      s.standing.applyQuaternion(q).normalize();
-      s.heading.applyQuaternion(q);
-      // re-orthogonalize heading to be tangent (perpendicular to standing)
-      s.heading.addScaledVector(s.standing, -s.heading.dot(s.standing)).normalize();
+      applyPan(dx, dy);
+      // Track instantaneous velocity (px/ms) with light low-pass smoothing
+      // so a brief pause at release doesn't kill the throw.
+      const now = performance.now();
+      const dt = Math.max(1, now - velocityRef.current.t);
+      const ivx = dx / dt;
+      const ivy = dy / dt;
+      velocityRef.current.vx = velocityRef.current.vx * 0.4 + ivx * 0.6;
+      velocityRef.current.vy = velocityRef.current.vy * 0.4 + ivy * 0.6;
+      velocityRef.current.t = now;
       return;
     }
 
@@ -640,8 +701,20 @@ export default function Yard3D({
   };
 
   const onPointerUp = (e: React.PointerEvent) => {
+    const wasSingle = pointersRef.current.size === 1;
     pointersRef.current.delete(e.pointerId);
     if (pointersRef.current.size < 2) gestureRef.current = null;
+    // Last finger lifted after a one-finger drag → kick off momentum spin.
+    if (
+      pointersRef.current.size === 0 &&
+      wasSingle &&
+      movedRef.current &&
+      // recency check: stale velocity (long pause before release) shouldn't throw
+      performance.now() - velocityRef.current.t < 80 &&
+      Math.hypot(velocityRef.current.vx, velocityRef.current.vy) > 0.05
+    ) {
+      startMomentum();
+    }
   };
 
   const cycleZoom = (dir: 1 | -1) => {
@@ -666,7 +739,7 @@ export default function Yard3D({
       shadows
       dpr={[1, 2]}
       gl={{ antialias: true }}
-      camera={{ fov: 45, near: 0.1, far: 60 }}
+      camera={{ fov: 45, near: 0.1, far: 120 }}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
@@ -735,6 +808,7 @@ export default function Yard3D({
         type="button"
         aria-label="Reset view"
         onClick={() => {
+          stopMomentum();
           stateRef.current.standing.set(0, 1, 0);
           stateRef.current.heading.set(0, 0, -1);
           setZoom(1);
