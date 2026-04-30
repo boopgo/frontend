@@ -286,7 +286,9 @@ function Ground() {
 
 function GrassField() {
   const meshRef = useRef<THREE.InstancedMesh>(null);
-  const COUNT = 2800;
+  // Whole-sphere coverage: ~12k blades over 4πR² ≈ 2463 world units of
+  // surface area. Density roughly matches the original polar-cap look.
+  const COUNT = 12000;
 
   useEffect(() => {
     const mesh = meshRef.current;
@@ -294,32 +296,38 @@ function GrassField() {
     const tmp = new THREE.Object3D();
     const color = new THREE.Color();
     const greens = ["#4f9a45", "#6cba5e", "#8fd07d", "#c2dc6f"];
+    const center = new THREE.Vector3(0, PLANET_CY, 0);
+    const up = new THREE.Vector3(0, 1, 0);
+    const normal = new THREE.Vector3();
+    const baseQuat = new THREE.Quaternion();
+    const yawQuat = new THREE.Quaternion();
+    const tiltQuat = new THREE.Quaternion();
+    const tiltAxis = new THREE.Vector3();
 
     for (let i = 0; i < COUNT; i++) {
-      // Sample within a polar cap on the planet (radius up to 9 from
-      // axis), denser toward the top.
-      const angle = Math.random() * Math.PI * 2;
-      const r = Math.sqrt(Math.random()) * 9;
-      const x = Math.cos(angle) * r;
-      const z = Math.sin(angle) * r;
-      const y = planetY(x, z); // sit on the curved surface
+      // Uniform sampling on the unit sphere via the inverse-CDF method:
+      // u in [-1, 1] gives uniform z, theta gives uniform azimuth, and
+      // sqrt(1 - u²) recovers the radial component. This avoids the
+      // pole-clustering that naive (theta, phi) random sampling causes.
+      const u = Math.random() * 2 - 1;
+      const theta = Math.random() * Math.PI * 2;
+      const s = Math.sqrt(1 - u * u);
+      normal.set(s * Math.cos(theta), u, s * Math.sin(theta));
+
+      // Position = planet center + R * unit normal.
+      tmp.position.copy(center).addScaledVector(normal, PLANET_R);
+
+      // Orient the blade's local +Y to the sphere normal, then add a
+      // random yaw around that normal so blades don't align in rows.
+      baseQuat.setFromUnitVectors(up, normal);
+      yawQuat.setFromAxisAngle(normal, Math.random() * Math.PI * 2);
+      // Small random tilt for variety so the field doesn't look uniform.
+      tiltAxis.set(Math.random() - 0.5, 0, Math.random() - 0.5).normalize();
+      tiltQuat.setFromAxisAngle(tiltAxis, (Math.random() - 0.5) * 0.3);
+      tmp.quaternion.copy(baseQuat).multiply(yawQuat).multiply(tiltQuat);
 
       const scaleY = 0.7 + Math.random() * 0.9;
       const scaleXZ = 0.8 + Math.random() * 0.5;
-
-      tmp.position.set(x, y, z);
-      // Tilt each blade so its base aligns with the sphere's surface
-      // normal. The normal at (x,y,z) points away from planet center.
-      const nx = x;
-      const ny = y - PLANET_CY;
-      const nz = z;
-      const tiltX = Math.atan2(nz, ny); // around X
-      const tiltZ = -Math.atan2(nx, ny); // around Z
-      tmp.rotation.set(
-        tiltX + (Math.random() - 0.5) * 0.15,
-        Math.random() * Math.PI * 2,
-        tiltZ + (Math.random() - 0.5) * 0.15
-      );
       tmp.scale.set(scaleXZ, scaleY, scaleXZ);
       tmp.updateMatrix();
       mesh.setMatrixAt(i, tmp.matrix);
