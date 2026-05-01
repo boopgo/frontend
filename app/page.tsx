@@ -1,10 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import dynamic from "next/dynamic";
-import { PALETTES } from "./play/PetCreature";
-
-const Yard3D = dynamic(() => import("./play/Yard3D"), { ssr: false });
+import { PhonePreview } from "./components/PhonePreview";
 
 type Audience = "pet-parent" | "press" | "brand";
 
@@ -156,42 +153,14 @@ export default function Home() {
                 See how it works
               </a>
             </div>
-            <p className="soon">⌛ Waitlist open · 4,200+ pet parents already in</p>
+            <p className="soon">⌛ Waitlist open</p>
           </div>
           <div className="hero-visual">
             <span className="floater f1">🐾</span>
             <span className="floater f2">✨</span>
             <span className="floater f3">🦴</span>
             <span className="floater f4">🎾</span>
-            <div className="phone">
-              <div className="notch"></div>
-              <div className="screen reveal-screen">
-                <div className="reveal-yard-mini">
-                  <Yard3D
-                    pets={[
-                      {
-                        id: "landing-preview",
-                        name: "Mochi",
-                        species: "dog",
-                        palette: PALETTES[0],
-                        x: 0.5,
-                        y: 0.5,
-                        vx: 0,
-                        vy: 0,
-                        facing: -1 as const,
-                        bob: 0,
-                      },
-                    ]}
-                  />
-                </div>
-                <div className="reveal-sheet-mini">
-                  <h3>Say hello.</h3>
-                  <p>What&apos;s their name?</p>
-                  <div className="name-input-mock">Mochi</div>
-                  <a className="reveal-cta" href="https://play.boopai.app/">Next →</a>
-                </div>
-              </div>
-            </div>
+            <PhonePreview />
           </div>
         </div>
       </section>

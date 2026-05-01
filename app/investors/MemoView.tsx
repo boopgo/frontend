@@ -1,15 +1,8 @@
-import type { Metadata } from "next";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { marked } from "marked";
-import { InvestorNav } from "../Nav";
+import { InvestorNav } from "./Nav";
 import { BriefToc } from "./Toc";
-
-export const metadata: Metadata = {
-  title: "boop · investor memo",
-  description: "Investor memo — Boop Go, Inc.",
-  robots: "noindex, nofollow, noarchive",
-};
 
 function slugify(text: string): string {
   return text
@@ -20,16 +13,18 @@ function slugify(text: string): string {
     .replace(/^-+|-+$/g, "");
 }
 
-export default function InvestorBrief() {
-  const md = readFileSync(join(process.cwd(), "docs", "investor-brief.md"), "utf8");
+export function MemoView() {
+  const raw = readFileSync(join(process.cwd(), "docs", "investor-brief.md"), "utf8");
+  // Escape single tildes so marked.js doesn't read "~30% (~20M)" as strikethrough.
+  const md = raw.replace(/(?<!~)~(?!~)/g, "\\~");
 
   const tokens = marked.lexer(md);
   const toc: { text: string; slug: string }[] = [];
   for (const token of tokens) {
     if (token.type === "heading" && token.depth === 2) {
-      const raw = token.text;
-      const display = raw.replace(/\s*—\s*/, " ");
-      toc.push({ text: display, slug: slugify(raw) });
+      const r = token.text;
+      const display = r.replace(/\s*—\s*/, " ");
+      toc.push({ text: display, slug: slugify(r) });
     }
   }
 
@@ -61,13 +56,6 @@ export default function InvestorBrief() {
         <article className="brief" dangerouslySetInnerHTML={{ __html: html }} />
         <BriefToc items={toc} />
       </div>
-      <footer className="brief-foot">
-        <span>Boop Go, Inc.</span>
-        <span>investors@boopai.app</span>
-        <span>
-          <a href="/investors">Overview →</a>
-        </span>
-      </footer>
     </div>
   );
 }

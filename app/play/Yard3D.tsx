@@ -2,9 +2,56 @@
 
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { ContactShadows } from "@react-three/drei";
-import { useEffect, useMemo, useRef, useState } from "react";
+import * as React from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import type { Palette, Species } from "./PetCreature";
+import { DogModel } from "./DogModel";
+
+let dogGlbExistsCache: boolean | null = null;
+function useDogGlbExists() {
+  const [exists, setExists] = useState<boolean | null>(dogGlbExistsCache);
+  useEffect(() => {
+    if (dogGlbExistsCache !== null) {
+      setExists(dogGlbExistsCache);
+      return;
+    }
+    let cancelled = false;
+    fetch("/models/dog.glb", { method: "HEAD" })
+      .then((r) => {
+        if (cancelled) return;
+        dogGlbExistsCache = r.ok;
+        setExists(r.ok);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        dogGlbExistsCache = false;
+        setExists(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+  return exists;
+}
+
+class GLBErrorBoundary extends React.Component<
+  { fallback: React.ReactNode; children: React.ReactNode },
+  { hasError: boolean }
+> {
+  constructor(props: { fallback: React.ReactNode; children: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+  componentDidCatch() {}
+  render() {
+    if (this.state.hasError) return this.props.fallback;
+    return this.props.children;
+  }
+}
 
 export type Pet3D = {
   id: string;
@@ -46,66 +93,36 @@ const toWorld = (p: Pet3D): [number, number, number] => {
   return [x, planetY(x, z), z];
 };
 
-function Creature({ pet }: { pet: Pet3D }) {
-  const group = useRef<THREE.Group>(null);
-  const legFL = useRef<THREE.Mesh>(null);
-  const legFR = useRef<THREE.Mesh>(null);
-  const legBL = useRef<THREE.Mesh>(null);
-  const legBR = useRef<THREE.Mesh>(null);
-  const tail = useRef<THREE.Mesh>(null);
-  const head = useRef<THREE.Group>(null);
-
+function ProceduralBody({
+  pet,
+  legFL,
+  legFR,
+  legBL,
+  legBR,
+  tail,
+  head,
+}: {
+  pet: Pet3D;
+  legFL: React.RefObject<THREE.Mesh | null>;
+  legFR: React.RefObject<THREE.Mesh | null>;
+  legBL: React.RefObject<THREE.Mesh | null>;
+  legBR: React.RefObject<THREE.Mesh | null>;
+  tail: React.RefObject<THREE.Mesh | null>;
+  head: React.RefObject<THREE.Group | null>;
+}) {
   const bodyColor = pet.palette.body;
   const bellyColor = pet.palette.belly;
   const accentColor = pet.palette.accent;
-
-  useFrame((state, dt) => {
-    if (!group.current) return;
-    const [wx, wy, wz] = toWorld(pet);
-    // smooth target follow
-    group.current.position.x += (wx - group.current.position.x) * Math.min(1, dt * 8);
-    group.current.position.z += (wz - group.current.position.z) * Math.min(1, dt * 8);
-    // face direction
-    const targetRot = pet.facing === 1 ? Math.PI / 2 : -Math.PI / 2;
-    const cur = group.current.rotation.y;
-    const diff = ((targetRot - cur + Math.PI) % (Math.PI * 2)) - Math.PI;
-    group.current.rotation.y += diff * Math.min(1, dt * 6);
-
-    const t = state.clock.elapsedTime;
-    // bob, layered on top of the planet's curved surface y
-    group.current.position.y = wy + Math.sin(t * 4 + pet.bob) * 0.04;
-
-    // leg shuffle (only when moving)
-    const speed = Math.hypot(pet.vx, pet.vy);
-    const shuffle = speed > 0.001 ? Math.sin(t * 10) * 0.22 : 0;
-    if (legFL.current) legFL.current.rotation.x = shuffle;
-    if (legBR.current) legBR.current.rotation.x = shuffle;
-    if (legFR.current) legFR.current.rotation.x = -shuffle;
-    if (legBL.current) legBL.current.rotation.x = -shuffle;
-
-    // tail wag
-    if (tail.current) tail.current.rotation.y = Math.sin(t * 6 + pet.bob) * 0.35;
-
-    // subtle head turn
-    if (head.current) head.current.rotation.y = Math.sin(t * 0.9 + pet.bob) * 0.12;
-  });
-
-  const initialWorld = toWorld(pet);
-
   return (
-    <group ref={group} position={initialWorld}>
-      {/* body */}
+    <>
       <mesh castShadow position={[0, 0.42, 0]} rotation={[0, 0, Math.PI / 2]}>
         <capsuleGeometry args={[0.32, 0.45, 8, 16]} />
         <meshStandardMaterial color={bodyColor} roughness={0.8} />
       </mesh>
-      {/* belly */}
       <mesh position={[0, 0.32, 0]} rotation={[0, 0, Math.PI / 2]}>
         <capsuleGeometry args={[0.22, 0.35, 8, 16]} />
         <meshStandardMaterial color={bellyColor} roughness={0.9} />
       </mesh>
-
-      {/* legs */}
       <mesh ref={legFL} castShadow position={[0.22, 0.15, 0.18]}>
         <cylinderGeometry args={[0.08, 0.08, 0.3, 12]} />
         <meshStandardMaterial color={accentColor} roughness={0.85} />
@@ -122,32 +139,25 @@ function Creature({ pet }: { pet: Pet3D }) {
         <cylinderGeometry args={[0.08, 0.08, 0.3, 12]} />
         <meshStandardMaterial color={accentColor} roughness={0.85} />
       </mesh>
-
-      {/* tail */}
       <group position={[-0.38, 0.48, 0]}>
         <mesh ref={tail} castShadow position={[-0.12, 0.06, 0]} rotation={[0, 0, 0.6]}>
           <capsuleGeometry args={[0.06, 0.2, 6, 10]} />
           <meshStandardMaterial color={bodyColor} roughness={0.8} />
         </mesh>
       </group>
-
-      {/* head */}
       <group ref={head} position={[0.42, 0.65, 0]}>
         <mesh castShadow>
           <sphereGeometry args={[0.3, 24, 20]} />
           <meshStandardMaterial color={bodyColor} roughness={0.8} />
         </mesh>
-        {/* snout */}
         <mesh position={[0.22, -0.05, 0]}>
           <sphereGeometry args={[0.15, 16, 14]} />
           <meshStandardMaterial color={bellyColor} roughness={0.9} />
         </mesh>
-        {/* nose */}
         <mesh position={[0.35, -0.02, 0]}>
           <sphereGeometry args={[0.045, 12, 10]} />
           <meshStandardMaterial color="#2A1A2E" roughness={0.3} />
         </mesh>
-        {/* eyes */}
         <mesh position={[0.18, 0.08, 0.14]}>
           <sphereGeometry args={[0.04, 10, 10]} />
           <meshStandardMaterial color="#2A1A2E" />
@@ -156,10 +166,76 @@ function Creature({ pet }: { pet: Pet3D }) {
           <sphereGeometry args={[0.04, 10, 10]} />
           <meshStandardMaterial color="#2A1A2E" />
         </mesh>
-
-        {/* species-specific ears */}
         <Ears species={pet.species} color={accentColor} bodyColor={bodyColor} />
       </group>
+    </>
+  );
+}
+
+function Creature({ pet }: { pet: Pet3D }) {
+  const group = useRef<THREE.Group>(null);
+  const legFL = useRef<THREE.Mesh>(null);
+  const legFR = useRef<THREE.Mesh>(null);
+  const legBL = useRef<THREE.Mesh>(null);
+  const legBR = useRef<THREE.Mesh>(null);
+  const tail = useRef<THREE.Mesh>(null);
+  const head = useRef<THREE.Group>(null);
+  const speedRef = useRef(0);
+
+  useFrame((state, dt) => {
+    if (!group.current) return;
+    const [wx, wy, wz] = toWorld(pet);
+    group.current.position.x += (wx - group.current.position.x) * Math.min(1, dt * 8);
+    group.current.position.z += (wz - group.current.position.z) * Math.min(1, dt * 8);
+    const targetRot = pet.facing === 1 ? Math.PI / 2 : -Math.PI / 2;
+    const cur = group.current.rotation.y;
+    const diff = ((targetRot - cur + Math.PI) % (Math.PI * 2)) - Math.PI;
+    group.current.rotation.y += diff * Math.min(1, dt * 6);
+
+    const t = state.clock.elapsedTime;
+    group.current.position.y = wy + Math.sin(t * 4 + pet.bob) * 0.04;
+
+    const speed = Math.hypot(pet.vx, pet.vy);
+    speedRef.current = speed;
+    const shuffle = speed > 0.001 ? Math.sin(t * 10) * 0.22 : 0;
+    if (legFL.current) legFL.current.rotation.x = shuffle;
+    if (legBR.current) legBR.current.rotation.x = shuffle;
+    if (legFR.current) legFR.current.rotation.x = -shuffle;
+    if (legBL.current) legBL.current.rotation.x = -shuffle;
+    if (tail.current) tail.current.rotation.y = Math.sin(t * 6 + pet.bob) * 0.35;
+    if (head.current) head.current.rotation.y = Math.sin(t * 0.9 + pet.bob) * 0.12;
+  });
+
+  const initialWorld = toWorld(pet);
+  const glbExists = useDogGlbExists();
+  const useGLB = pet.species === "dog" && glbExists === true;
+  const fallback = (
+    <ProceduralBody
+      pet={pet}
+      legFL={legFL}
+      legFR={legFR}
+      legBL={legBL}
+      legBR={legBR}
+      tail={tail}
+      head={head}
+    />
+  );
+
+  return (
+    <group ref={group} position={initialWorld}>
+      {useGLB ? (
+        <GLBErrorBoundary fallback={fallback}>
+          <Suspense fallback={fallback}>
+            <DogModel
+              bodyColor={pet.palette.body}
+              bellyColor={pet.palette.belly}
+              speedRef={speedRef}
+            />
+          </Suspense>
+        </GLBErrorBoundary>
+      ) : (
+        fallback
+      )}
     </group>
   );
 }
