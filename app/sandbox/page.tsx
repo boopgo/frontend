@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { InvestorNav } from "../investors/Nav";
 import { Variant03Editorial } from "./Variant03Editorial";
 import { Variant03Gallery } from "./Variant03Gallery";
@@ -11,7 +12,9 @@ export const metadata = {
 export default function Sandbox() {
   return (
     <div className="page-investors">
-      <InvestorNav />
+      <Suspense fallback={null}>
+        <InvestorNav />
+      </Suspense>
 
       <div className="sandbox-divider"><small>Variant B</small>Editorial spread</div>
       <Variant03Editorial />
