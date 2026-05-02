@@ -277,22 +277,20 @@ export function OverviewView() {
         <div className="wrap">
           <span className="slide-num">07 · Team</span>
           <h2>
-            A small pack. <em>Built for this.</em>
+            Who&rsquo;s <em>building Boop.</em>
           </h2>
           <div className="team-grid">
             <div className="person">
-              <div className="head">[photo]</div>
-              <h4>[Founder Name]</h4>
-              <div className="role">Founder &amp; CEO</div>
-              <p>[One-line bio: prior companies, relevant wins, domain credibility.]</p>
-              <a href="#">LinkedIn →</a>
+              <h4>Theo Fandrich</h4>
+              <p>CFA III · Cambridge Associates · Partyhats</p>
             </div>
             <div className="person">
-              <div className="head">[photo]</div>
-              <h4>[Co-founder Name]</h4>
-              <div className="role">Game &amp; Product</div>
-              <p>[One-line bio: prior shipping credits, relevant gameplay or AI experience.]</p>
-              <a href="#">LinkedIn →</a>
+              <h4>Ryan Li</h4>
+              <p>Beijing University · Citadel · ByteDance · OKX</p>
+            </div>
+            <div className="person">
+              <h4>Riolis</h4>
+              <p>AAA mobile game developer · 10+ years (Sega)</p>
             </div>
           </div>
         </div>
@@ -326,15 +324,10 @@ export function OverviewView() {
               <b>iOS launch</b>
               <span>v1 monetization (Layers 1 &amp; 2) live, baseline ARPU captured</span>
             </div>
-            <div className="ask-box">
-              <div className="label">Team hires</div>
-              <b>2</b>
-              <span>Lead engineer + deferred GTM</span>
-            </div>
           </div>
           <div className="btn-row" style={{ marginTop: 48 }}>
-            <a className="btn ghost" href="mailto:investors@boopai.app">
-              investors@boopai.app
+            <a className="btn ghost" href="mailto:hello@boopai.app">
+              hello@boopai.app
             </a>
           </div>
         </div>
@@ -343,7 +336,7 @@ export function OverviewView() {
       <footer>
         <div className="wrap">
           <a href="/">← boop (consumer)</a>
-          <a href="mailto:investors@boopai.app">investors@boopai.app</a>
+          <a href="mailto:hello@boopai.app">hello@boopai.app</a>
           <span style={{ display: "block", marginTop: 12, opacity: 0.6 }}>© 2026 Boop Go, Inc.</span>
         </div>
       </footer>

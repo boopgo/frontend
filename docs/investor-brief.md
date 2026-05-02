@@ -42,27 +42,21 @@ Of that household total, **$428 / yr** flows through products and gifts — the 
 
 ## §3 — Product
 
-<p class="lede">Five primitives that compose the §1 consolidation surface — Scan, Walk, Dress, Feed, Friend graph. Dress carries v1 revenue; the friend graph compounds it over time.</p>
+<p class="lede">Two primitives in v1 — Scan and Game. §4 Layers 1 (IAP cosmetics) and 2 (private label + custom merch) monetize the Game surface; broader surfaces compound later as user density earns them.</p>
 
-Five surfaces described as primitives, not as a vision:
+- **Scan.** The pet parent points the camera at their dog; in seconds, the dog becomes their boop — a real-pet-identified digital companion the Game surface attaches to.
 
-- **Scan.** The pet parent points the camera at their dog; in seconds, the dog becomes their boop — a real-pet-identified digital companion the rest of the loops attach to.
+- **Game.** The daily loop your boop lives inside: walk and outdoor mechanics, companion behavior, try-on, play. One integrated experience — the moment-to-moment tactility that determines whether Boop is opened tomorrow. Outfits, accessories, and gear render on your boop; one tap puts the real SKU in checkout — Boop is on the credit-card line. v1 catalog is Boop-IP: POD custom merch (with the user&apos;s dog as design input) day-one, plus a small-batch private-label apparel core. The surface §4 Layers 1 (IAP cosmetics) and 2 (private label + custom merch) both monetize.
 
-- **Walk.** The daily outdoor loop, both utility (route, time, distance, vet history) and play (the dog-as-character earns rewards, meets nearby pets, levels up).
+The Game-first scope is also a growth strategy. Gen Z and Millennial pet parents are the segment most willing to download a new app, scan their dog, and engage with AI as the primary interaction — the household onboarders. v1 targets them specifically; broader-household surfaces (Feed, Friend graph, multi-pet graph) compound once the dog is already inside the app.
 
-- **Dress.** The try-on and commerce surface. Outfits, accessories, and gear render on your boop; one tap puts the real SKU in checkout — Boop is on the credit-card line. v1 catalog is Boop-IP: POD custom merch (with the user&apos;s dog as design input) day-one, plus a small-batch private-label apparel core. Third-party brand drop-ship layers on Y2+ once demand signal is observable. The surface §4 Layers 1 (IAP cosmetics) and 2 (private label + custom merch) both monetize at v1.
-
-- **Feed.** The in-app social surface, pets-only. Posts are by pets, not by their humans.
-
-- **Friend graph.** Pets accumulate relationships with other pets and the people their pets encounter — at the dog park, at the vet, with the staff at their groomer, on walks. A relational layer that accrues over time; effectively a LinkedIn for pets. Not a monetization layer in itself; a game mechanic and a compounding distribution surface that deepens Layers 4 and 5 of §4 as the graph gets denser.
-
-v1 ships these five. The next primitives — multi-pet graph, conversational layer, longer-tail commerce surfaces — compound on the foundation rather than replace it; each is shipped when user behavior earns it.
+The next primitives — Feed (pets-only social), Friend graph (relational density across vet, groomer, dog park), broader commerce surfaces (third-party marketplace MoR, local merchant network, brand partnerships), multi-pet graph, conversational layer — compound on the foundation rather than replace it; each is shipped when user behavior earns it.
 
 ## §4 — Monetization
 
 <p class="lede">Five revenue layers, $22 year-3 blended ARPU, $50 saturation. Each layer anchored to a public comp; none invented.</p>
 
-Five revenue layers, each with a distinct mechanic and a public-comp anchor. The §3 Walk and Dress surfaces monetize through in-app digital purchases (Pokémon Go shape); the physical-merch surfaces monetize through marketplace-of-record commerce (Faire / Wayfair shape — Boop on the credit-card line, brands drop-ship) and private-label channels with different unit economics; partnerships are split into the two sales motions they actually are — local SMB self-serve (Yelp shape) and national brand BD (Pinterest / TikTok shape).
+Five revenue layers, each with a distinct mechanic and a public-comp anchor. The §3 Game surface monetizes through in-app digital purchases (Pokémon Go shape); the physical-merch surfaces monetize through marketplace-of-record commerce (Faire / Wayfair shape — Boop on the credit-card line, brands drop-ship) and private-label channels with different unit economics; partnerships are split into the two sales motions they actually are — local SMB self-serve (Yelp shape) and national brand BD (Pinterest / TikTok shape).
 
 | Layer | Phase | GM% | Year-3 ARPU | Saturation ARPU |
 | --- | :---: | :---: | ---: | ---: |
@@ -84,14 +78,14 @@ Mechanic and comp evidence per layer below; expand for detail. Comps are cited a
 
 <details>
 <summary><span class="comp-label">Layer 1 · IAP</span><span class="comp-stat">Pokémon Go · Roblox · Remini</span></summary>
-<p><strong>Mechanic.</strong> Cosmetic outfits on your boop, sold inside the §3 Dress surface (digital-only, no physical SKU); consumables tied to the gamification loop (treats, energy regeneration, special items); multi-pet add-on as a one-time IAP; scan and AI-generation credits sold per-use; walk-loop power-ups that surface rare interactions or boost progression.</p>
+<p><strong>Mechanic.</strong> Cosmetic outfits on your boop, sold inside the §3 Game surface (digital-only, no physical SKU); consumables tied to the gamification loop (treats, energy regeneration, special items); multi-pet add-on as a one-time IAP; scan and AI-generation credits sold per-use; walk-loop power-ups that surface rare interactions or boost progression.</p>
 <p><strong>Comp evidence.</strong> Pokémon Go generated ~$545M in 2024 IAP across ~115M MAU (~$4.74 / MAU / yr) on a free-to-play, no-subscription structure — the load-bearing comp for IAP on a walking and creature-collecting loop.<sup>4</sup> Roblox demonstrates the upper bound of avatar-cosmetic IAP at ~$53 bookings per DAU in FY2024 ($4.37B bookings ÷ 82.9M average DAU) on pure digital goods (Roblox reports bookings-per-DAU rather than ARPU; the figures are not directly equivalent but bracket the upper-bound monetization a cosmetic-avatar surface can achieve).<sup>5</sup> The virtual pet simulator category — the Tamagotchi-descendant lineage of feed/rest/dress mechanics — sits at ~$326M globally in 2025, growing ~10% annually.<sup>6</sup> Adjacent on the AI surface: Remini generated ~$200M in 2024 IAP from AI-generated likenesses of the user, applied here to the pet.<sup>7</sup></p>
 <p><strong>ARPU math.</strong> $4 yr-3 = ~10% of MAU paying ~$40/yr in cosmetic outfits and walk-loop power-ups. Pokémon GO sustains ~$4.74 / MAU / yr without subscription; the Boop case sits at the same conversion intensity with a smaller-but-richer cosmetic surface (the user&apos;s own pet, not a generic creature). Saturation $8 assumes ~15% paying conversion at the same $40 average, well below Roblox's $53 bookings-per-DAU FY2024 actual.</p>
 </details>
 
 <details>
 <summary><span class="comp-label">Layer 2 · Private label + custom merch</span><span class="comp-stat">Crown &amp; Paw · BarkBox · Glossier</span></summary>
-<p><strong>Mechanic.</strong> Boop-IP physical goods sold inside the §3 Dress surface, fulfilled two ways: (a) <em>POD custom merch</em>, day-1 — t-shirts, hoodies, mugs, totes, posters, canvas with the user&apos;s dog as design input (human-side); bandanas, beds, blankets, bowls with the dog as design input (pet-side); printed and shipped per-order by a POD vendor (Printful / Printify-class), zero inventory; and (b) <em>small-batch private-label pet apparel</em>, day-1 — an 8–15 SKU starter collection (fleece, rain jacket, cooling vest, harnesses, collars) manufactured short-run through a contract manufacturer, procured in parallel with the v1 build. Both ship under Boop branding; Boop is on the credit-card line, captures full revenue, owns the customer relationship and the repeat-purchase data.</p>
+<p><strong>Mechanic.</strong> Boop-IP physical goods sold inside the §3 Game surface, fulfilled two ways: (a) <em>POD custom merch</em>, day-1 — t-shirts, hoodies, mugs, totes, posters, canvas with the user&apos;s dog as design input (human-side); bandanas, beds, blankets, bowls with the dog as design input (pet-side); printed and shipped per-order by a POD vendor (Printful / Printify-class), zero inventory; and (b) <em>small-batch private-label pet apparel</em>, day-1 — an 8–15 SKU starter collection (fleece, rain jacket, cooling vest, harnesses, collars) manufactured short-run through a contract manufacturer, procured in parallel with the v1 build. Both ship under Boop branding; Boop is on the credit-card line, captures full revenue, owns the customer relationship and the repeat-purchase data.</p>
 <p><strong>Why private label first, not third-party marketplace.</strong> A multi-brand drop-ship marketplace requires ~40 brand contracts before launch — operationally non-viable for a 2-person team. Private label collapses the supply chain to two POD vendors and one contract manufacturer; every digital outfit on your boop maps cleanly to a Boop SKU with no cross-catalog OOS or affiliate-link rot. It also delivers brand coherence — every outfit is in the Boop aesthetic universe, the way every Glossier product feels like Glossier. Third-party marketplace MoR (Layer 3) layers on top in Y2+ once we have v1 demand signal and signed brand interest.</p>
 <p><strong>Comp evidence.</strong> Crown &amp; Paw and the broader pet-portraiture POD cohort (Furryfolks, West &amp; Willow, Pop Your Pup) have each built nine-figure DTC businesses entirely on the dog-as-design-input mechanic — POD merchandise of the customer&apos;s own pet, no inventory, the same mechanic Boop ships day-one with the avatar and scan as the input.<sup>8</sup> The Original BARK Company reported ~$483M in FY2024 revenue across ~2–3M active subscribers (~$160–240 ARPU per paying user), entirely from Boop-comparable private-label pet merchandise.<sup>9</sup> Glossier is the brand-coherence comp: ~$275M revenue at peak, content-first DTC, every SKU in one aesthetic universe — the shape Boop&apos;s Layer 2 catalog inherits.</p>
 <p><strong>ARPU math.</strong> $7 yr-3 blended = ~$4.20 / MAU from POD custom merch (8% paying conversion × $35 AOV × 1.5 orders / yr × ~30% GM netted → revenue $4.20, GP ~$1.26) + ~$2.80 / MAU from private-label pet apparel (4% × $55 AOV × 1.2 orders/yr × ~50% GM → revenue $3.30, GP $1.65). Saturation $15 assumes 12% POD conversion and 6% private-label conversion at higher AOV as the catalog deepens. Crown &amp; Paw&apos;s nine-figure revenue on a comparable POD mechanic — through paid-Facebook-ads-only acquisition, with no in-app try-on surface and no daily-return loop — defines the upper bound; BARK&apos;s $160–240 paying-user ARPU brackets the apparel side.</p>
@@ -205,15 +199,14 @@ The risks not listed here — incumbent feature parity, AI inference cost, regul
 
 ## §8 — Team
 
-<p class="lede">Two founders: a builder and a game designer. Seed funds two engineering hires, not a generalist build-out.</p>
+<p class="lede">A three-person team built around the actual hard parts of v1: capital discipline, applied AI, and game-loop craft.</p>
 
-A two-person founding team. Boop is intentionally small at this stage; the seed round funds two engineering hires to ship v1, not a generalist build-out.
+Three people: a builder, an AI researcher, and a mobile game developer.
 
-- **[Founder name] — Founder &amp; CEO.** [One-line bio: prior companies, relevant wins, domain credibility.]
-- **[Co-founder name] — Game &amp; product.** [One-line bio: prior shipping credits, relevant gameplay or AI experience.]
+- **Theo Fandrich — Product & GTM.** Owns execution. Built Partyhats, a crypto exchange, solo — engineering, product, growth. Investments at Cambridge Associates. CFA III.
+- **Ryan Li — AI research.** Owns the Scan-to-companion model pipeline and general AI integration. Mathematics at Peking, Bath, and Chicago; quantitative trading at Citadel; applied ML at ByteDance (directed a 20-engineer AI lab); structured-product engineering at OKX.
 
-The composition is deliberate: a builder and a game designer. The product surface that has to work first — the Scan-to-companion flow and the daily walk loop — is a game-design problem before it is a social-network problem. Hiring against that thesis is how the team is structured.
-
+- **Riolis — Game engineering.** Owns mobile game design. AAA mobile game developer; lead developer on a Sega mobile title that hit no. 1 top-grossing in Japan (no. 8 in the US) at its peak, and on a Kadokawa Games title that held top-grossing rank earning ~¥1M per week.
 ## §9 — The ask
 
 <p class="lede">$1M seed on a $10M post-money cap SAFE. ~24 months runway. ~$355K reserve held for validated double-down.</p>
@@ -244,12 +237,10 @@ Boop is run as an experimental lab. The seed funds the team and infrastructure r
 
 | Use | $ | Unlocks |
 | --- | ---: | --- |
-| Founder salary (24 mo @ $80K base + employer payroll tax; no benefits) | $173K | Runway through iOS launch + 12 mo of v1 data |
-| Lead engineer salary (24 mo @ $100K base + employer payroll tax; no benefits) | $216K | Ships Scan, Walk, Dress, Feed, Friend graph; ongoing ML / avatar quality |
-| GTM hire (deferred ~12 mo, activated once v1 signal exists) | $86K | Hired only when v1 reveals a channel worth scaling |
-| AI inference + infra (scan, generation, maps; 24 mo, sized for v1 closed beta + early launch at <50K MAU; revisits at scale) | $80K | Per-scan unit cost held under target; supports v1 user volume |
+| Team (founder + lead engineer + deferred GTM hire) | $475K | 24 mo runway through iOS launch + 12 mo of v1 data; founder $80K base, no benefits, capital flows to product |
+| AI inference + infra | $80K | Scan, generation, maps; sized for v1 closed beta + early launch at <50K MAU; revisits at scale |
+| Commerce setup | $50K | Layer 2 revenue live at iOS launch — POD vendor integration + first private-label apparel run |
 | Legal, ops, accounting, tools | $40K | — |
-| Layer 2 supply chain — POD vendor integration + first private-label apparel run | $50K | Layer 2 revenue live at iOS launch (POD custom merch day-one + 8–15 SKU private-label apparel core; first contract-manufacturer run procured against v1 closed-beta demand) |
 | **Operating spend** | **~$645K** | |
 | **Capital reserve, held for validated double-down** | **~$355K** | Deployed against v1 channels with proven unit economics (paid acquisition, additional hires, infra scale-out) |
 | **Total** | **$1.00M** | |

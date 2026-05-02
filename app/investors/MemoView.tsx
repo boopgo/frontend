@@ -47,7 +47,7 @@ export function MemoView() {
             <span>·</span>
             <span>Seed</span>
             <span>·</span>
-            <span>April 2026</span>
+            <span>May 2026</span>
           </div>
         </div>
         <div className="masthead-title">Investor Memo</div>

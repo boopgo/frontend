@@ -44,7 +44,65 @@ a{color:inherit}
 }
 
 /* ============================================================
-   CONSUMER PAGE
+   LANDING (root /) — minimal entry, two CTAs
+   ============================================================ */
+.landing{
+  min-height:100dvh;
+  display:flex;flex-direction:column;
+  background:
+    radial-gradient(900px 600px at 85% -10%, var(--peach) 0%,transparent 55%),
+    radial-gradient(800px 600px at 5% 100%, var(--lilac) 0%,transparent 60%),
+    var(--cream);
+}
+.landing-inner{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:32px 24px;text-align:center;gap:36px;
+}
+.landing-mark{display:inline-flex;align-items:center;gap:10px}
+.landing-logo{
+  font-family:'Fraunces',serif;font-weight:800;font-size:48px;color:var(--ink);
+  letter-spacing:-.02em;line-height:1;
+}
+.landing-paw{display:inline-block;transform:translateY(2px)}
+.landing-tagline{
+  font-family:'Fraunces',serif;font-weight:800;
+  font-size:clamp(40px,6vw,72px);line-height:1;letter-spacing:-.02em;
+  max-width:14ch;margin:0;
+}
+.landing-tagline em{font-style:italic;color:var(--coral)}
+.landing-ctas{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
+.landing-btn{
+  display:inline-flex;align-items:center;justify-content:center;
+  padding:16px 28px;border-radius:999px;
+  font-family:'Nunito',ui-rounded,system-ui,sans-serif;
+  font-weight:800;font-size:16px;letter-spacing:.01em;
+  text-decoration:none;
+  transition:transform .15s ease,box-shadow .15s ease;
+}
+.landing-btn.primary{
+  background:var(--ink);color:#fff;
+  box-shadow:0 10px 30px rgba(42,26,46,.18);
+}
+.landing-btn.ghost{
+  background:#fff;color:var(--ink);
+  box-shadow:0 4px 14px rgba(42,26,46,.06);
+}
+.landing-btn:hover{transform:translateY(-2px)}
+.landing-foot{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:20px 28px;font-size:13px;color:var(--sub);
+  border-top:1px solid rgba(42,26,46,.06);
+}
+.landing-foot a{color:var(--ink);text-decoration:none}
+.landing-foot a:hover{text-decoration:underline}
+@media (max-width:600px){
+  .landing-foot{flex-direction:column;gap:6px;text-align:center}
+  .landing-tagline{font-size:clamp(34px,9vw,56px)}
+  .landing-logo{font-size:40px}
+}
+
+/* ============================================================
+   CONSUMER PAGE (legacy — unused after landing rip)
    ============================================================ */
 .page-consumer{
   .wrap{max-width:1180px;margin:0 auto;padding:0 28px}
@@ -1052,22 +1110,15 @@ a{color:inherit}
   /* TEAM */
   .team-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:40px}
   .person{background:#fff;border-radius:22px;padding:30px;border:1px solid var(--line);text-align:center}
-  .person .head{
-    width:120px;height:120px;border-radius:50%;margin:0 auto 18px;
-    background:linear-gradient(135deg,var(--peach),var(--lilac));
-    display:flex;align-items:center;justify-content:center;font-size:52px;
-  }
-  .person h4{font-family:'Fraunces',serif;font-size:20px;margin:0 0 4px}
-  .person .role{font-size:13px;color:var(--coral);font-weight:800;margin-bottom:10px}
-  .person p{color:var(--sub);font-size:14px;margin:0 0 12px}
-  .person a{font-size:13px;text-decoration:none;color:var(--ink);font-weight:800;border-bottom:2px solid var(--peach)}
+  .person h4{font-family:'Fraunces',serif;font-size:22px;margin:0 0 8px}
+  .person p{color:var(--sub);font-size:14px;margin:0;line-height:1.55}
 
   /* ASK */
   .ask{background:var(--ink);color:#fff;border-bottom:none}
   .ask h2,.ask h2 em{color:#fff}
   .ask em{color:var(--peach)}
   .ask .dek{color:#b8a5bc}
-  .ask-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:40px}
+  .ask-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:40px}
   .ask-box{background:rgba(255,255,255,.06);padding:28px;border-radius:20px;border:1px solid rgba(255,255,255,.1)}
   .ask-box .label{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--peach);font-weight:800;margin-bottom:10px}
   .ask-box b{font-family:'Fraunces',serif;font-size:32px;display:block;line-height:1;margin-bottom:8px}
@@ -1098,14 +1149,6 @@ a{color:inherit}
   footer a{color:#fff;text-decoration:none;margin:0 12px}
 
   @media (max-width:900px){
-    nav{padding:10px 0}
-    nav .wrap{gap:12px;padding:0 16px}
-    nav .tag{display:none}
-    nav a.link{display:none}
-    nav .logo{font-size:20px}
-    nav .logo .paw{width:15px;height:15px}
-    nav a.cta{padding:8px 14px;font-size:13px}
-
     .wrap{padding:0 20px}
     section{padding:64px 0}
     .hook{padding:80px 0 64px}
@@ -1120,7 +1163,18 @@ a{color:inherit}
     .two{grid-template-columns:1fr;gap:28px;margin-top:28px}
     .two h3{font-size:20px}
 
-    .stat-grid,.revenue-grid,.team-grid,.ask-grid{grid-template-columns:1fr;gap:12px;margin-top:28px}
+    .stat-grid,.stat-row,.revenue-grid,.team-grid,.ask-grid{grid-template-columns:1fr;gap:12px;margin-top:28px}
+    .stat-row .stat b{font-size:42px}
+
+    /* Comp matrix (§06): show only the three differentiator columns on mobile */
+    .comp-matrix{margin-top:28px}
+    .comp-row{
+      grid-template-columns:1.3fr repeat(3,minmax(0,1fr));
+      padding:10px 14px;font-size:12px;
+    }
+    .comp-row.comp-head{font-size:10px;letter-spacing:.05em}
+    .comp-row .comp-name{font-size:15px}
+    .comp-row > span:nth-child(n+5){display:none}
     .stat{padding:24px 20px}
     .stat b{font-size:38px}
     .rev{padding:22px}
@@ -1233,22 +1287,39 @@ a{color:inherit}
    ============================================================ */
 .ib-tabs-wrap{display:inline-flex;align-items:center}
 .ib-tabs{
-  display:inline-flex;gap:2px;padding:3px;
+  display:inline-flex;align-items:center;gap:2px;padding:3px;
   background:rgba(0,0,0,.06);
   border:1px solid rgba(0,0,0,.08);
   border-radius:999px;
   font-family:-apple-system,BlinkMacSystemFont,"Inter","Segoe UI","Helvetica Neue",Arial,sans-serif;
   font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;
+  line-height:1;
+  height:30px;box-sizing:border-box;
 }
 .ib-tab{
-  display:inline-block;padding:5px 14px;border-radius:999px;
-  text-decoration:none;color:#666;
+  display:inline-flex;align-items:center;justify-content:center;
+  padding:0 14px;border-radius:999px;
+  text-decoration:none;color:#666;text-align:center;min-width:84px;
+  white-space:nowrap;line-height:1;
+  height:24px;box-sizing:border-box;
   transition:background-color .15s ease,color .15s ease;
 }
 .ib-tab:hover{color:#111}
 .ib-tab.is-active{
   background:#fff;color:#111;
   box-shadow:0 1px 2px rgba(0,0,0,.08);
+}
+
+/* Mobile shrink for the shared investor nav + tabs. */
+@media (max-width:600px){
+  .boop-nav{padding:10px 0;font-size:13px}
+  .boop-nav-inner{padding:0 16px;gap:10px}
+  .boop-nav-logo{font-size:20px}
+  .boop-nav-paw{width:15px;height:15px}
+  /* "Investors" pill is redundant on mobile — URL + tabs carry the context */
+  .boop-nav-tag{display:none}
+  .ib-tabs{font-size:10px;padding:2px;height:28px}
+  .ib-tab{padding:0 12px;letter-spacing:.06em;height:22px;min-width:78px}
 }
 
 /* ============================================================
@@ -1426,4 +1497,8 @@ html{scroll-behavior:smooth}
   .page-brief .brief{padding:24px 22px 40px}
   .page-brief .brief-foot{flex-direction:column;gap:6px;padding:18px 22px 32px}
   .page-brief .masthead-title{font-size:20px}
+  /* Tables (esp. §4 5-column ARPU stack) overflow on small viewports — make scrollable */
+  .page-brief .brief table{display:block;overflow-x:auto;white-space:nowrap}
+  .page-brief .brief .comps summary{font-size:12px}
+  .page-brief .brief .comps .comp-stat{display:none}
 }
