@@ -1,6 +1,14 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { marked } from "marked";
+
+marked.use({
+  tokenizer: {
+    del() {
+      return undefined;
+    },
+  },
+});
 import { InvestorNav } from "./Nav";
 import { BriefToc } from "./Toc";
 
@@ -14,9 +22,7 @@ function slugify(text: string): string {
 }
 
 export function MemoView() {
-  const raw = readFileSync(join(process.cwd(), "docs", "investor-brief.md"), "utf8");
-  // Escape single tildes so marked.js doesn't read "~30% (~20M)" as strikethrough.
-  const md = raw.replace(/(?<!~)~(?!~)/g, "\\~");
+  const md = readFileSync(join(process.cwd(), "docs", "investor-brief.md"), "utf8");
 
   const tokens = marked.lexer(md);
   const toc: { text: string; slug: string }[] = [];
