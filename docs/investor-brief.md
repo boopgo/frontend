@@ -48,7 +48,7 @@ Of that household total, **$428 / yr** flows through products and gifts — the 
 
 - **Game.** The daily loop your boop lives inside: walk and outdoor mechanics, companion behavior, try-on, play. One integrated experience — the moment-to-moment tactility that determines whether Boop is opened tomorrow. Outfits, accessories, and gear render on your boop; one tap puts the real SKU in checkout — Boop is on the credit-card line. v1 catalog is Boop-IP: POD custom merch (with the user&apos;s dog as design input), plus a small-batch private-label apparel core. The surface §4 Layers 1 (IAP cosmetics) and 2 (private label + custom merch) both monetize.
 
-The Game-first scope is also a growth strategy. Gen Z and Millennial pet parents are the segment most willing to download a new app, scan their dog, and engage with AI as the primary interaction — the household onboarders. v1 targets them specifically; broader-household surfaces (Feed, Friend graph, multi-pet graph) compound once the dog is already inside the app.
+The Game-first scope is a growth strategy. Gen Z and Millennial pet parents are the segment most willing to download a new app, scan their dog, and engage with AI as the primary interaction — the household onboarders. v1 targets them specifically; broader-household surfaces (Feed, Friend graph, multi-pet graph) compound once the dog is already inside the app.
 
 The next primitives — Feed (pets-only social), Friend graph (relational density across vet, groomer, dog park), broader commerce surfaces (third-party marketplace MoR, local merchant network, brand partnerships), multi-pet graph, conversational layer — compound on the foundation rather than replace it; each is shipped when user behavior earns it.
 
@@ -58,17 +58,14 @@ The next primitives — Feed (pets-only social), Friend graph (relational densit
 
 Five layers, each with a distinct mechanic and a public-comp anchor. IAP inside the §3 Game surface; physical commerce as Boop-IP (private label + POD) and a third-party marketplace built on the same in-app surface; local SMB self-serve and national brand BD as separate sales motions.
 
-| Layer | Phase | GM% | Year-3 ARPU | Saturation ARPU |
-| --- | :---: | :---: | ---: | ---: |
-| 1. In-app digital purchases (IAP) | v1 | ~70% | $4 | $8 |
-| 2. Private label + custom merch (POD) | v1.5 | ~38% | $7 | $15 |
-| 3. Marketplace commerce — third-party MoR | Y2+ | ~80% | $4 | $12 |
-| 4. Local merchant network | Y2+ | ~85% | $5 | $10 |
-| 5. National brand partnerships | Y3+ | ~85% | $2 | $5 |
-| **Blended** | | **~66% / ~67%** | **$22** | **$50** |
-| **Gross profit per MAU** | | | **~$15** | **~$33** |
-
-*Gross-margin notes.* L1 ~70% after Apple&apos;s 30% IAP cut. L2 ~38% blended (POD ~30%, private-label apparel ~50%). L3 ~80% on the 25–30% take. L4–5 SaaS-like at ~85%. Blended ~66–67%, roughly flat across years.
+| Layer | Phase | Year-3 ARPU | Saturation ARPU |
+| --- | :---: | ---: | ---: |
+| 1. In-app digital purchases (IAP) | v1 | $4 | $8 |
+| 2. Private label + custom merch (POD) | v1.5 | $7 | $15 |
+| 3. Marketplace commerce — third-party MoR | Y2+ | $4 | $12 |
+| 4. Local merchant network | Y2+ | $5 | $10 |
+| 5. National brand partnerships | Y3+ | $2 | $5 |
+| **Blended** | | **$22** | **$50** |
 
 *Phasing.* **v1** ships with Layer 1 IAP live, trialed across cosmetic and walk-loop mechanics through the first cohorts. **v1.5** lights up Layer 2: POD custom merch within ~6 weeks of launch, small-batch private-label apparel (8–15 SKUs) ~3–6 months post-launch, sized to real demand. **Y2+** brings L3 (third-party MoR) and L4 (local merchants); both credible inside 18–24 months. **Y3+** brings L5 once MAU justifies national-brand BD. Seed funds v1 and v1.5 only.
 
@@ -163,13 +160,11 @@ No current player occupies more than three columns of the matrix; Boop&apos;s cl
 
 **Every pet app that has tried to monetize the engagement loop directly has had to devalue it to scale, and lost its base when it did.** Two cases.
 
-**[Lev](https://apps.apple.com/us/app/lev-meet-dogs-explore/id1668175755) — walk-to-earn currency revolt.** Walk-to-earn marketplace; users earn an in-app currency ("bones") redeemable on an integrated Shopify catalog.<sup>14</sup> In 2025 Lev cut bone value from $0.50 to $0.10 (80% devaluation) and added a 30-day balance-reset rule. The published FAQ now reads: *"if your Bones balance remains positive for 30 consecutive days, the balance will reset to zero"* — a policy that structurally punishes saving.<sup>15</sup> Recent App Store reviews are dominated by previously-positive users describing it as a betrayal.
+**[Lev](https://apps.apple.com/us/app/lev-meet-dogs-explore/id1668175755).** Walk-to-earn marketplace; users bank an in-app currency ("bones") redeemable on Shopify.<sup>14</sup> In 2025 Lev cut bone value 80% ($0.50 → $0.10) and added a 30-day balance reset: *"if your Bones balance remains positive for 30 consecutive days, the balance will reset to zero."*<sup>15</sup> Recent reviews read as betrayal.
 
-**[Sniffspot](https://apps.apple.com/us/app/sniffspot-private-dog-parks/id1437699295) — booking marketplace to subscription wall.** Private-yard rental marketplace (4.9★, ~20K US ratings) moved from per-visit booking to a $20/month subscription with expiring credits; recent negative reviews open with *"it was great until the subscription model."* The subscription is sold via web, not IAP — a tell that unit economics are tight before Apple's 30% cut.<sup>16</sup>
+**[Sniffspot](https://apps.apple.com/us/app/sniffspot-private-dog-parks/id1437699295).** Private-yard rental marketplace (4.9★, ~20K US ratings) moved from per-visit booking to a $20/month subscription with expiring credits. Subscription sold via web, not IAP — a tell that unit economics are tight before Apple's 30% cut.<sup>16</sup>
 
-**Why this matters for §4.** Both share one structural feature: engagement reward and spend currency are the same surface. When unit economics force a rebalance, the company taxes its most active users first — they hold the largest balance and represent the largest cost. Boop's stack is designed against this. The walk loop and friend graph are gamified through leveling, achievements, and in-game items, none denominated in real-world value. There is no balance to devalue. Layer 1 sells discrete cosmetic goods. Layer 2 sells Boop-owned SKUs. Layers 3–5 compound on engagement without being denominated in it.
-
-The free social-only cohort tells the inverse story: Pawmates, Social Paws, and DOGOUT each sit under 100 ratings despite multi-year tenure. The category rewards neither monetized engagement loops nor unmonetized social — only a daily ritual with monetization decoupled from the ritual itself.
+Both share one structure: engagement reward and spend currency are the same surface, so any rebalance taxes the most active users first. Boop's stack avoids this — the walk loop and friend graph are gamified through leveling, achievements, and in-game items, none denominated in real-world value. The inverse cohort (free social-only — Pawmates, Social Paws, DOGOUT) sits under 100 ratings despite multi-year tenure. The viable position is what Boop occupies: a daily ritual with monetization decoupled from the ritual.
 
 ## §7 — Team
 
