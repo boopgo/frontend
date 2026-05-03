@@ -75,7 +75,7 @@ function confirmationEmail(audience: Audience | null) {
     <div style="font-family:Georgia,serif;font-size:48px;font-weight:800;letter-spacing:-1px">boop</div>
     <h2 style="font-family:Georgia,serif;font-size:28px;margin:20px 0 12px">You're in.</h2>
     <p style="font-size:16px;line-height:1.5;color:#4a3a4e">${line}</p>
-    <p style="font-size:16px;line-height:1.5;color:#4a3a4e">In the meantime — tell a pet person. The softest corner of the internet is coming.</p>
-    <p style="font-size:14px;color:#8b7a8f;margin-top:32px">— the boop team 🐾</p>
+    <p style="font-size:16px;line-height:1.5;color:#4a3a4e">In the meantime, tell a pet person. The softest corner of the internet is coming.</p>
+    <p style="font-size:14px;color:#8b7a8f;margin-top:32px">· the boop team 🐾</p>
   </div>`;
 }

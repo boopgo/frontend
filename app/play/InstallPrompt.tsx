@@ -43,7 +43,7 @@ export default function InstallPrompt() {
     window.addEventListener("beforeinstallprompt", onBeforeInstall);
 
     if (isIos) {
-      // No native install API on iOS — show our own hint after a delay
+      // No native install API on iOS, so show our own hint after a delay
       timer = setTimeout(() => {
         setShowIosHint(true);
         setVisible(true);

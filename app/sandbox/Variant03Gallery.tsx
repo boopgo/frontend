@@ -1,4 +1,4 @@
-// §03 Product — Variant C (Gallery)
+// §03 Product · Variant C (Gallery)
 // Source: .claude/worktrees/agent-a28a4b4a52590c47b/app/investors/OverviewView.tsx
 // Headline normalized to "One scan. Every surface." per sandbox spec.
 

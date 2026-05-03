@@ -3,7 +3,7 @@ import RegisterSW from "./RegisterSW";
 import InstallPrompt from "./InstallPrompt";
 
 export const metadata: Metadata = {
-  title: "boop — play",
+  title: "boop · play",
   robots: { index: false, follow: false },
   manifest: "/manifest.webmanifest",
   // Next.js's appleWebApp.capable only emits the modern <meta name="mobile-web-app-capable">,

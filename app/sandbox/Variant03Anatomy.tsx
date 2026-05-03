@@ -1,4 +1,4 @@
-// §03 Product — Variant D (Anatomy plate)
+// §03 Product · Variant D (Anatomy plate)
 // Source: .claude/worktrees/agent-a45952cc369e0e8bb/app/investors/OverviewView.tsx
 export function Variant03Anatomy() {
   return (
@@ -9,7 +9,7 @@ export function Variant03Anatomy() {
           One scan. <em>Every surface.</em>
         </h2>
         <p className="dek anatomy-dek">
-          The boop is a single asset — your real dog, scanned. From there, every product surface is just a different
+          The boop is a single asset: your real dog, scanned. From there, every product surface is just a different
           view of the same animal.
         </p>
 
@@ -151,7 +151,7 @@ export function Variant03Anatomy() {
           </div>
           <figcaption className="anatomy-cap">
             <span>Plate III</span>
-            <span><i>Canis familiaris boopiensis</i> — surfaces of a single asset</span>
+            <span><i>Canis familiaris boopiensis</i> · surfaces of a single asset</span>
             <span>Boop AI · 2026</span>
           </figcaption>
         </figure>

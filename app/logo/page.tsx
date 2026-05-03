@@ -2,14 +2,14 @@ import type { Metadata } from "next";
 import "./logo.css";
 
 export const metadata: Metadata = {
-  title: "boop — logo lab",
+  title: "boop · logo lab",
   robots: { index: false, follow: false },
 };
 
 const PEACH = "#FF9A8B";
 
 /* ============================================================
-   THE STANDARD DOG PAW — three carefully proportioned takes.
+   THE STANDARD DOG PAW: three carefully proportioned takes.
    Each is the classic 4-toe paw print, drawn with anatomically
    correct toe arc and a heart-rounded main pad. Differences are
    only in proportion and stylization weight.
@@ -18,7 +18,7 @@ const PEACH = "#FF9A8B";
 function StandardPaw({ size = 64 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 64 64" aria-label="Standard dog paw">
-      {/* main pad — classic rounded teardrop with soft top */}
+      {/* main pad: classic rounded teardrop with soft top */}
       <path
         d="M32 28
            Q24 28 20 33
@@ -29,7 +29,7 @@ function StandardPaw({ size = 64 }: { size?: number }) {
            Q40 28 32 28 Z"
         fill={PEACH}
       />
-      {/* 4 toes in an arc — outer pair smaller, inner pair larger and higher */}
+      {/* 4 toes in an arc: outer pair smaller, inner pair larger and higher */}
       <ellipse cx="14" cy="28" rx="4.5" ry="5.5" fill={PEACH} />
       <ellipse cx="25" cy="15" rx="5"   ry="6"   fill={PEACH} />
       <ellipse cx="39" cy="15" rx="5"   ry="6"   fill={PEACH} />
@@ -85,12 +85,12 @@ function StandardPawSlim({ size = 64 }: { size?: number }) {
 
 const PAWS = [
   { name: "Standard dog paw", Cmp: StandardPaw },
-  { name: "Standard dog paw — chunky", Cmp: StandardPawChunky },
-  { name: "Standard dog paw — slim", Cmp: StandardPawSlim },
+  { name: "Standard dog paw, chunky", Cmp: StandardPawChunky },
+  { name: "Standard dog paw, slim", Cmp: StandardPawSlim },
 ];
 
 /* ============================================================
-   SNOOTS — the part you actually boop. Cat-style heart noses,
+   SNOOTS: the part you actually boop. Cat-style heart noses,
    wet button noses, three-quarter snouts, and onomatopoeia.
    ============================================================ */
 
@@ -218,9 +218,9 @@ function NoseWithWhiskers({ size = 64 }: { size?: number }) {
 }
 
 function BlepNose({ size = 64 }: { size?: number }) {
-  // nose + tiny tongue (the "blep" — pet internet slang)
+  // nose + tiny tongue (the "blep", pet internet slang)
   return (
-    <svg width={size} height={size} viewBox="0 0 64 64" aria-label="Blep — nose with tongue">
+    <svg width={size} height={size} viewBox="0 0 64 64" aria-label="Blep, nose with tongue">
       <path
         d="M32 14
            C26 10 18 14 18 22
@@ -239,14 +239,14 @@ function BlepNose({ size = 64 }: { size?: number }) {
 
 const SNOOTS = [
   { name: "Round button nose (original)", Cmp: ButtonNose },
-  { name: "Button nose — with nostrils", Cmp: ButtonNoseNostrils },
-  { name: "Button nose — glossy gradient", Cmp: ButtonNoseGlossy },
-  { name: "Button nose — sparkle accent", Cmp: ButtonNoseSparkle },
+  { name: "Button nose, with nostrils", Cmp: ButtonNoseNostrils },
+  { name: "Button nose, glossy gradient", Cmp: ButtonNoseGlossy },
+  { name: "Button nose, sparkle accent", Cmp: ButtonNoseSparkle },
   { name: "Heart nose (cat-style)", Cmp: HeartNose },
   { name: "Wet shiny nose", Cmp: WetNose },
   { name: "Three-quarter snout", Cmp: ThreeQuarterSnout },
   { name: "Nose with whiskers", Cmp: NoseWithWhiskers },
-  { name: "Blep — nose + tiny tongue", Cmp: BlepNose },
+  { name: "Blep, nose + tiny tongue", Cmp: BlepNose },
 ];
 
 /* ============================================================
@@ -257,10 +257,10 @@ const SNOOTS = [
 
 // Backgrounds for the chunky standard dog paw (paw stays coral #FF9A8B).
 const APP_BGS = [
-  { name: "Ink — premium",            style: "#2A1A2E" },
+  { name: "Ink, premium",            style: "#2A1A2E" },
   { name: "Deep plum",                style: "#3a2235" },
   { name: "Peach",                    style: "#FFD6A5" },
-  { name: "Cream — minimal",          style: "#FFF6EC" },
+  { name: "Cream, minimal",          style: "#FFF6EC" },
   { name: "Sky",                      style: "#A8D8EA" },
   { name: "Lilac",                    style: "#C3AED6" },
   { name: "Mint",                     style: "#B8E6C5" },
@@ -298,7 +298,7 @@ export default function LogoLab() {
             </div>
           </div>
           <div className="winner-card">
-            <span className="winner-cap">Favicon — 32 / 20 / 14</span>
+            <span className="winner-cap">Favicon · 32 / 20 / 14</span>
             <div className="winner-favicons">
               <StandardPawChunky size={32} />
               <StandardPawChunky size={20} />
@@ -309,10 +309,10 @@ export default function LogoLab() {
       </section>
 
       <header className="lab-header">
-        <h1>Exploration — paw patterns</h1>
+        <h1>Exploration · paw patterns</h1>
         <p>
           Three proportions of the classic 4-toe dog paw print: regular,
-          chunky, and slim. Same anatomy — just different weight.
+          chunky, and slim. Same anatomy, just different weight.
         </p>
       </header>
 
@@ -356,7 +356,7 @@ export default function LogoLab() {
 
       {/* App icon background lab */}
       <header className="lab-header" style={{ marginTop: 56 }}>
-        <h1>App icon backgrounds — standard chunky paw</h1>
+        <h1>App icon backgrounds · standard chunky paw</h1>
         <p>
           The chunky 4-toe dog paw (peach / coral, unchanged) on twelve
           different app-icon backgrounds at 120×120.

@@ -1,4 +1,4 @@
-// §03 Product — Variant B (Editorial spread)
+// §03 Product · Variant B (Editorial spread)
 // Source: .claude/worktrees/agent-a76c250c806a728bb/app/investors/OverviewView.tsx
 export function Variant03Editorial() {
   return (

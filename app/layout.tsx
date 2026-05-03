@@ -5,7 +5,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Boop: Boop your Boop",
   description:
-    "Snap a photo, get your boop — your pet's digital twin, ready to live in your pocket.",
+    "Snap a photo, get your boop: your pet's digital twin, ready to live in your pocket.",
   appleWebApp: {
     title: "Boop AI",
   },

@@ -9,7 +9,7 @@ export function GET() {
   const manifest = {
     name: "Boop AI",
     short_name: "Boop AI",
-    description: "Snap a photo, get your boop — your pet's digital twin.",
+    description: "Snap a photo, get your boop: your pet's digital twin.",
     start_url: "/",
     scope: "/",
     display: "standalone",

@@ -2,7 +2,7 @@ import { InvestorNav } from "./Nav";
 import { ScrollTracker } from "./ScrollTracker";
 import { PhonePreview } from "../components/PhonePreview";
 
-// Single shared boop silhouette — same SVG repeated across every §03 tile.
+// Single shared boop silhouette: same SVG repeated across every §03 tile.
 function Boop({ small = false }: { small?: boolean }) {
   return (
     <svg
@@ -65,12 +65,12 @@ export function OverviewView() {
               <em>for pets.</em>
             </h1>
             <p className="lede">
-              Scan your dog once and they become your boop — a digital companion you walk, dress, and shop for. Try a
+              Scan your dog once and they become your boop: a digital companion you walk, dress, and shop for. Try a
               jacket on your boop; one tap puts the real jacket in the mail.
             </p>
             <div className="meta">
               <span className="pill dark">iOS · launching summer 2026</span>
-              <span className="pill">Raising — seed</span>
+              <span className="pill">Raising · seed</span>
               <span className="pill">Tokyo · Austin</span>
             </div>
           </div>
@@ -91,12 +91,12 @@ export function OverviewView() {
               </h2>
               <p className="dek">
                 A pet parent&apos;s day moves across Chewy or Amazon for food, Rover or the vet for care, Google or Yelp
-                for the dog park. The pet economy is $158B and growing — but the consumer surface that sits across all
+                for the dog park. The pet economy is $158B and growing, but the consumer surface that sits across all
                 of it doesn&apos;t exist.
               </p>
               <p className="dek" style={{ marginTop: 24 }}>
                 Boop AI is that surface. Every product, brand, and local merchant a pet parent already engages with
-                converges on their boop — by name, breed, neighborhood, and daily routine.
+                converges on their boop, organized by name, breed, neighborhood, and daily routine.
               </p>
             </div>
             <div className="gap-orbit" aria-hidden="true">
@@ -244,7 +244,7 @@ export function OverviewView() {
             <em>$158B.</em> Pre-AI. Now.
           </h2>
           <p className="dek">
-            AI scans finally work on consumer photos. The US pet category is still pre-AI infrastructure — 68M
+            AI scans finally work on consumer photos. The US pet category is still pre-AI infrastructure: 68M
             dog-owning households, $428/yr discretionary spend per household, zero AI-native players.
           </p>
           <div className="stat-row">
@@ -272,7 +272,7 @@ export function OverviewView() {
             We are the <em>storefront,</em> not a referral pipe.
           </h2>
           <p className="dek">
-            v1 ships Boop-IP physical goods — POD custom merch with your dog as design input, plus a private-label
+            v1 ships Boop-IP physical goods: POD custom merch with your dog as design input, plus a private-label
             apparel core. $22 ARPU year-3, $50 at saturation. Full math in the memo.
           </p>
           <div className="layer-stack">
@@ -314,7 +314,7 @@ export function OverviewView() {
           </h2>
           <p className="dek">
             Boop AI is the only player that&apos;s AI-native, scans the user&apos;s real dog, and ships the dress
-            surface. Those three are the cold-start anchor and the v1 revenue engine — and no one else has them.
+            surface. Those three are the cold-start anchor and the v1 revenue engine, and no one else has them.
           </p>
           <div className="comp-matrix">
             <div className="comp-row comp-head">
@@ -333,19 +333,19 @@ export function OverviewView() {
             </div>
             <div className="comp-row">
               <span className="comp-name">Chewy</span>
-              <span>—</span><span>—</span><span>—</span><span>—</span><span>—</span><span>●</span><span>—</span>
+              <span>○</span><span>○</span><span>○</span><span>○</span><span>○</span><span>●</span><span>○</span>
             </div>
             <div className="comp-row">
               <span className="comp-name">Rover</span>
-              <span>—</span><span>—</span><span>—</span><span>◐</span><span>—</span><span>●</span><span>●</span>
+              <span>○</span><span>○</span><span>○</span><span>◐</span><span>○</span><span>●</span><span>●</span>
             </div>
             <div className="comp-row">
               <span className="comp-name">Lev</span>
-              <span>—</span><span>—</span><span>—</span><span>●</span><span>●</span><span>●</span><span>●</span>
+              <span>○</span><span>○</span><span>○</span><span>●</span><span>●</span><span>●</span><span>●</span>
             </div>
             <div className="comp-row">
               <span className="comp-name">DogHood</span>
-              <span>—</span><span>—</span><span>—</span><span>●</span><span>●</span><span>◐</span><span>●</span>
+              <span>○</span><span>○</span><span>○</span><span>●</span><span>●</span><span>◐</span><span>●</span>
             </div>
           </div>
         </div>

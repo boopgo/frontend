@@ -271,7 +271,7 @@ export default function DemoPage() {
             >
               <span className="chip-emoji">✨</span>
               Mix / Not sure
-              <span className="chip-sub">Totally fine — most boops are</span>
+              <span className="chip-sub">Totally fine, most boops are</span>
             </button>
             <div className="or-divider"><span>or pick one</span></div>
             <div className="chip-wrap">
@@ -365,7 +365,7 @@ function WelcomeScreen({ onStart }: { onStart: () => void }) {
           Let's <em>boop</em> your pet.
         </h1>
         <p className="lede">
-          Snap a photo and we'll sculpt a boop — your pet's digital twin — ready to live in your pocket.
+          Snap a photo and we'll sculpt a boop, your pet's digital twin, ready to live in your pocket.
         </p>
         <div className="actions">
           <button className="btn-primary" onClick={onStart}>
@@ -489,7 +489,7 @@ function RevealScreen({
 }
 
 /* ============================================================
-   WIZARD SHELL — shared layout for onboarding metadata steps
+   WIZARD SHELL: shared layout for onboarding metadata steps
    ============================================================ */
 
 const WIZARD_STEP_COUNT = 4;
@@ -562,7 +562,7 @@ function WizardShell({
 }
 
 /* ============================================================
-   HOME — the yard
+   HOME: the yard
    ============================================================ */
 
 function HomeScreen({
